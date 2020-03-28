@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Hi, {{ current_user.username }}!</h1>
+    {% if inRoom != None %}
+    <b> You are currently in room <a href='/room/{{ inRoom }}'> {{ inRoom }} </a> </b>
+    {% else %}
+    <b><a href='/newRoom'> Create new room </a></b>
+    <div>
+        <input type="text" id="roomName" name="roomName" placeholder="Enter Room ID">
+        <button id='joinBtn'> Join </button>
+    </div>
+    <script src= {{ url_for('static', filename='indexScript.js') }}></script>
+    {% endif %}
+{% endblock %}

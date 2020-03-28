@@ -1,0 +1,252 @@
+#playerWinText{
+    transform: rotate(180deg);
+}
+
+button.buttonChoice{
+    float:left;
+    position: absolute;
+    top: 25%;
+    height: 50%;
+    margin-left: 5%;
+}
+button.buttonEnd{
+    float: right;
+    position: relative;
+    /* top: 25%; */
+    height: 50%;
+    width: 30%;
+    margin-left: 5%;
+    margin-right: 10%;
+    margin-top: 5%;
+}
+
+button.buttonWin{
+    height: 60%;
+    top: 120%;
+    position: absolute;
+    width: 15%;
+    margin-left: -2%;
+    visibility: hidden;
+}
+
+div.mainGame{
+    position: relative;
+    width:800px;
+    height:800px;
+    margin:auto;
+    background-color: white;
+} 
+
+div.tiles{
+    position: absolute;
+    display:inline-block;
+    width: 82%;
+    height:6%;
+}
+
+div.choices{
+    position: relative;
+    display:none;
+    width: 80%;
+    height: 15%;
+    transform: rotate(180deg);
+    margin-right: 6%;
+}
+
+div.wins{
+    position: relative;
+    display:none;
+    width: 90%;
+    height: 10%;
+    transform: rotate(180deg);
+    margin-left: 7%;
+    margin-top: 8%;
+}
+
+#win5{
+    margin-top:0%;
+}
+
+div.discards{
+    padding-top: 1%;
+    position: absolute;
+    display:inline-block;
+    width: 46%;
+    height: 22%;
+}
+
+div.tile{
+    float:left;
+    width: 7%;
+    margin-left:-10px;
+    height: 100%;
+    /* background-image: url('/media/2-1-.svg'); */
+    background-repeat: no-repeat;
+}
+
+div.tilehand{
+    float:right;
+    width: 6%;
+    margin-left:-2px;
+    margin-right:-1px;
+    height: 100%;
+    /* background-image: url('/media/b-0-.svg'); */
+    background-repeat: no-repeat;
+}
+
+div.tilediscard {
+    float: right;
+    width: 11%;
+    margin-left: -5px;
+    height: 30%;
+    /*background-image: url('/media/4-1-.svg'); */
+    background-repeat: no-repeat;
+    transform:rotate(180deg);
+}
+
+div.tilechoice{
+    float:left;
+    width: 15%;
+    height: 100%;
+    display: inline-block;
+    background-repeat: no-repeat;
+}
+
+div.tilewin{
+    float:right;
+    width: 8%;
+    height: 100%;
+    margin-left: -1%;
+    margin-right: -1%;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-image: url('/media/4-1-.svg'); 
+}
+
+div.choicetext{
+    float:left;
+    width: 7%;
+    height: 100%;
+    /* vertical-align: middle; */
+    text-align: center;
+    /* line-height: 40px; */
+}
+
+div.winAdd{
+    float: right;
+    width: 5%;
+    height: 100%;
+    text-align: center;
+    margin-right: 1%;
+}
+
+#flower2{
+    right: 0%;
+    float:right;
+    transform:rotate(180deg);
+}
+#set2{
+    top: 6%;
+    right: 0%;
+    transform:rotate(180deg);
+}
+#hand2{
+    right: 0%;
+    top: 12%;
+    transform:rotate(180deg);
+}
+#discard2{
+    top: 18%;
+    left: 20%;
+}
+
+#flower3{
+    left: 6%;
+    top: 0%;
+    transform: rotate(90deg);
+    transform-origin: top left;
+}
+#set3{
+    left: 12%;
+    top: 0%;
+    transform-origin: top left;
+    transform: rotate(90deg);
+}
+#hand3{
+    left: 18%;
+    transform: rotate(90deg);
+    transform-origin: top left;
+}
+#discard3{
+    left: -28%;
+    bottom: 42%;
+    transform: rotate(-90deg);
+    transform-origin: top right;
+}
+
+
+#center{
+    position: absolute;
+    background-color:white;
+    width: 30%;
+    height: 30%;
+    left: 33%;
+    top: 33%;
+    z-index: 1;
+    padding: 2%;
+    transform: rotate(180deg);
+    display:none;
+}
+
+#centerWin{
+    position: absolute;
+    background-color:white;
+    width: 70%;
+    height: 50%;
+    left: 15%;
+    top: 25%;
+    z-index: 2;
+    transform: rotate(180deg);
+    display:none;
+    text-align: center;
+}
+#flower1{
+    top: 12%;
+    right: 0%;
+    transform: rotate(-90deg);
+    transform-origin: bottom right;
+}
+#set1{
+    top: 12%;
+    right: 6%;
+    transform: rotate(-90deg);
+    transform-origin: bottom right;
+}
+#hand1{
+    top: 18%;
+    transform: rotate(-90deg);
+    transform-origin: top right;
+}
+#discard1{
+    top: -4%;
+    right: -5%;
+    transform: rotate(90deg);
+    transform-origin: bottom left;
+}
+
+#flower0{
+    bottom: 0%;
+    margin-top:-6%;
+}
+#set0{
+    bottom: 6%;
+}
+#hand0{
+    bottom: 12%;
+}
+#discard0{
+    bottom: 18%;
+    right: 20%;
+    transform: rotate(180deg);
+}
+

@@ -1,0 +1,6 @@
+app.db
+**/__pycache__
+venv/
+app/media/
+**/.ropeproject
+**/.DS_Store

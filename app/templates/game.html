@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <link href=" {{ url_for('static', filename='stylesheet1.css') }}" rel='stylesheet'>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <div class='mainGame'>
+    <div id='center'>
+        <div class='choices' id='choice5'>
+            <button class='buttonEnd' id='ignorebutton'> ignore </button>
+        </div>
+        {% for i in range(5) %}
+        <div class='choices' id='choice{{ i }}'>
+            <div class='tilechoice' id='choice{{ i }}-0'>
+            </div>
+            <div class='choicetext'> + </div>
+            <div class='tilechoice' id='choice{{ i }}-1'>
+            </div>
+            <div class='tilechoice' id='choice{{ i }}-2'>
+            </div>
+            <div class='tilechoice' id='choice{{ i }}-3'>
+            </div>
+            <button class='buttonChoice' id='button{{ i }}'></button>
+        </div>
+        {% endfor %}
+    </div>
+    <div id='centerWin'>
+        <div class='wins' id='win5'>
+            <button class='buttonEnd' id='ignoreWinButton'> ignore </button>
+        </div>
+        {% for i in range(5) %}
+        <div class='wins' id='win{{ i }}'>
+            <button class='buttonWin' id='WinButton{{ i }}'>win!</button>
+            {% for j in range(13) %}
+            <div class='tilewin' id='win{{ i }}-{{ j+1 }}'>
+            </div>
+            {% endfor %}
+            <div class='winAdd'> + </div>
+            <div class='tilewin' id='win{{ i }}-0'>
+            </div>
+        </div>
+        {% endfor %}
+        <h2 id='playerWinText'> </h2>
+    </div>
+     
+    {% set tileLen = [8, 16, 14, 21] %}
+    {% set tileLabel = ['flower', 'set', 'hand', 'discard'] %}
+    {% set tileClass = ['tiles', 'tiles', 'tiles', 'discards'] %}
+    {% set tileSubClass = ['tile', 'tile', 'tilehand', 'tilediscard'] %}
+    {% for player in range(4) %}
+    {% for i in range(4) %}
+    <div class = "{{ tileClass[i] }}" id="{{ tileLabel[i] }}{{ player }}">
+        {% for flower in range(tileLen[i]) %}
+        <div id="{{ tileLabel[i] }}-{{ player }}-{{ flower }}" class="{{ tileSubClass[i] }}">
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    {% endfor %}
+    </div>
+    <script> 
+    var roomID = '{{ roomID }}';
+    </script>
+    <script src=" {{ url_for('static', filename='static.js') }}" ></script>
+{% endblock %}
+

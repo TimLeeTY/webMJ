@@ -67,7 +67,7 @@ function drawHands(handSizes){
         var tile;
         for (t=0; t<handSizes[hand]; t++){
             tile=document.getElementById('hand-'+(hand+1)+'-'+(t+1)%14);
-            tile.style.backgroundImage = "url('media/b-0-.svg')";
+            tile.style.backgroundImage = "url('/media/b-0-.svg')";
         }
         for (t=handSizes[hand]+1; t<14; t++){
             tile=document.getElementById('hand-'+(hand+1)+'-'+t);
@@ -82,7 +82,7 @@ function drawDiscards(tiles, player){
         var s=tiles[t][0];
         var v=tiles[t][1] + 1;
         tile=document.getElementById('discard-'+player+'-'+t);
-        tile.style.backgroundImage = "url('media/"+s+"-"+v+"-.svg')"
+        tile.style.backgroundImage = "url('/media/"+s+"-"+v+"-.svg')"
     }
 }
 
@@ -92,7 +92,7 @@ function drawSets(tiles, player){
         var s=tiles[t][0];
         var v=tiles[t][1] + 1;
         tile=document.getElementById('set-'+player+'-'+t);
-        tile.style.backgroundImage = "url('media/"+s+"-"+v+"-.svg')"
+        tile.style.backgroundImage = "url('/media/"+s+"-"+v+"-.svg')"
     }
 }
 
@@ -102,7 +102,7 @@ function showPlayerHand(tiles){
         var s=tiles[t][0];
         var v=tiles[t][1] + 1;
         var tile=document.getElementById('hand-0-'+(t+1)%14);
-        tile.style.backgroundImage = "url('media/"+s+"-"+v+"-.svg')"
+        tile.style.backgroundImage = "url('/media/"+s+"-"+v+"-.svg')"
     }
     for (var t=tl; t<=13; t++){
         document.getElementById('hand-0-'+(t+1)%14).style.backgroundImage = "none"
@@ -111,19 +111,19 @@ function showPlayerHand(tiles){
 function playerDraw(newTile){
     var tile;
     tile=document.getElementById('hand-0-0');
-    tile.style.backgroundImage = "url('media/"+newTile[0]+"-"+(newTile[1]+1)+"-.svg')"
+    tile.style.backgroundImage = "url('/media/"+newTile[0]+"-"+(newTile[1]+1)+"-.svg')"
 }
 
 function draw(player){
     var tile;
     tile=document.getElementById('hand-'+player+'-0');
-    tile.style.backgroundImage = "url('media/b-0-.svg')";
+    tile.style.backgroundImage = "url('/media/b-0-.svg')";
 }
 
 function discardTileDisp(newTile, player, loc){
     var discTile
     discTile=document.getElementById('discard-'+player+'-'+loc);
-    discTile.style.backgroundImage = "url('media/"+newTile[0]+"-"+(newTile[1]+1)+"-.svg')";
+    discTile.style.backgroundImage = "url('/media/"+newTile[0]+"-"+(newTile[1]+1)+"-.svg')";
 }
 
 function discardTileHand(player){
@@ -136,7 +136,7 @@ function addSet(player, loc, newSet){
     for (var i=0; i<newSet.length; i++){
         var setTile
         setTile=document.getElementById('set-'+player+'-'+(loc+i));
-        setTile.style.backgroundImage = "url('media/"+newSet[i][0]+"-"+(newSet[i][1]+1)+"-.svg')";
+        setTile.style.backgroundImage = "url('/media/"+newSet[i][0]+"-"+(newSet[i][1]+1)+"-.svg')";
     }
 }
 
@@ -145,7 +145,7 @@ function showSet(newSet, player, loc){
     for (i=0; i<newSet.length; i++){
         var tile;
         tile=document.getElementById('set-'+player+'-'+(loc+i));
-        tile.style.backgroundImage = "url('media/"+newSet[i][0]+"-"+(newSet[i][1]+1)+"-.svg')"
+        tile.style.backgroundImage = "url('/media/"+newSet[i][0]+"-"+(newSet[i][1]+1)+"-.svg')"
     }
 }
 
@@ -170,12 +170,12 @@ function showChoices(tile, types, sets){
             var choice = document.getElementById('choice'+i);
             choice.style.display = 'inline-block'
             var newTile = document.getElementById('choice'+i+'-0');
-            newTile.style.backgroundImage = "url('media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
+            newTile.style.backgroundImage = "url('/media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
             for (var j=0; j<sets[i].length; j++){
                 (function(){
                     var setTile
                     setTile = document.getElementById('choice'+i+'-'+(j+1));
-                    setTile.style.backgroundImage = "url('media/"+sets[i][j][0]+"-"+(sets[i][j][1]+1)+"-.svg";
+                    setTile.style.backgroundImage = "url('/media/"+sets[i][j][0]+"-"+(sets[i][j][1]+1)+"-.svg";
                 })()}
         var btn = document.getElementById('button'+i);
         btn.innerHTML = types[i];
@@ -194,12 +194,12 @@ function showWin(tile, hands){
             var choice = document.getElementById('win'+i);
             choice.style.display = 'inline-block'
             var newTile = document.getElementById('win'+i+'-0');
-            newTile.style.backgroundImage = "url('media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
+            newTile.style.backgroundImage = "url('/media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
             for (var j=0; j<hands[i].length; j++){
                 (function(){
                     var setTile
                     setTile = document.getElementById('win'+i+'-'+(j+1));
-                    setTile.style.backgroundImage = "url('media/"+hands[i][j][0]+"-"+(hands[i][j][1]+1)+"-.svg";
+                    setTile.style.backgroundImage = "url('/media/"+hands[i][j][0]+"-"+(hands[i][j][1]+1)+"-.svg";
                 })()}
         })() }
     var choice5 = document.getElementById('win5');
@@ -216,12 +216,12 @@ function playerWin(player, tile, hand){
     var choice = document.getElementById('win0');
     choice.style.display = 'inline-block'
     var newTile = document.getElementById('win0-0');
-    newTile.style.backgroundImage = "url('media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
+    newTile.style.backgroundImage = "url('/media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
     for (var j=0; j<hand.length; j++){
         (function(){
             var setTile
             setTile = document.getElementById('win0-'+(j+1));
-            setTile.style.backgroundImage = "url('media/"+hand[j][0]+"-"+(hand[j][1]+1)+"-.svg";
+            setTile.style.backgroundImage = "url('/media/"+hand[j][0]+"-"+(hand[j][1]+1)+"-.svg";
         })()};
     var choice5 = document.getElementById('win5');
     choice5.style.display = 'inline-block';
@@ -331,6 +331,11 @@ socket.on('drawSets', function(setDict){
 
 socket.on('playerDraw', function(tile){
     playerDraw(tile)
+});
+
+socket.on('blindDraw', function(player){
+    player = playerList.indexOf(player);
+    draw(tile)
 });
 
 socket.on('joinRoom', function(players, roomID){

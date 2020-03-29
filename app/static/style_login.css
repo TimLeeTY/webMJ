@@ -15,6 +15,12 @@ span.header{
     border-bottom: solid rgb(200, 200, 200) 0.5px;
 }
 
+#title_logo{
+    height: 1em;
+    display: inline-block;
+    margin-left: 5px;
+}
+
 label{
     font-weight:500;
     line-height: 40px;

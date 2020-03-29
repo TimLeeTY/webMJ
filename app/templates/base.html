@@ -1,10 +1,10 @@
 <html>
     <head>
       <title>webMJ</title>
-      <link rel='stylesheet' type='text/css' href='{{ url_for('static', filename='style_default.css') }}'/>
+      <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='style_default.css') }}"/>
     </head>
     <body>
-        <div class='menuBar'> <b class='logo'>webMJ</b>
+        <div class='menuBar'> <img src= "{{ url_for('media', filename='logo.svg') }}" id='logo'/>
             <a class='menuLink' href="{{ url_for('index') }}">Home</a>
             {% if current_user.is_anonymous %}
             <a class='menuLink loginLink' href="{{ url_for('login') }}">Login</a>

@@ -7,8 +7,8 @@ from app.models import User
 from werkzeug.urls import url_parse
 
 
-@app.route('/room/<roomID>/media/<path:filename>')
-def send_media(roomID, filename):
+@app.route('/media/<path:filename>')
+def media(filename):
     return send_from_directory('media', filename)
 
 
@@ -228,6 +228,7 @@ def draw(roomID):
     tile, player, winBool = gameRoom.game(roomID).draw()
     playerSid = gameRoom.roomContent[roomID]['sid'][player]
     socketio.emit('playerDraw', tile, room=playerSid)
+    socketio.emit('blindDraw', player, room=playerSid)
     if winBool:
         hand = gameRoom.game(roomID).showHand(current_user.username)[:-1]
         socketio.emit('showWin', (tile, [hand]), room=playerSid)

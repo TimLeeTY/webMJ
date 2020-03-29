@@ -28,8 +28,10 @@ a.menuLink{
     line-height: 25px;
 }
 
-b.Logo{
-    float:left
+#logo{
+    height:60%;
+    float:left;
+    margin-right:1em;
 }
 
 

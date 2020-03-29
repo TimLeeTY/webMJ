@@ -1,15 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
+<link rel='stylesheet' type='text/css' href='{{ url_for('static', filename='style_home.css') }}'/>
+
+<div class='mainBlock'>
+    <span class='header'>Hi, {{ current_user.username }}</span>
     {% if inRoom != None %}
-    <b> You are currently in room <a href='/room/{{ inRoom }}'> {{ inRoom }} </a> </b>
+    <span class='optText'> You are currently in room <a class='roomLink' href='/room/{{ inRoom }}'> {{ inRoom }} </a> </span>
+    <a href='{{ url_for('leaveRoom', roomID=inRoom) }}' class='Btn' id='leaveLink'> Leave </a>
+    <a href='/room/{{ inRoom }}' class='Btn' id='joinLink'> Join </a>
     {% else %}
-    <b><a href='/newRoom'> Create new room </a></b>
-    <div>
+    <div class='option'>
+    <span class='optText'> Create a new room and invite friends! </span>
+    <a href='/newRoom' class='Btn' id='newBtn'> New Room </a>
+    <hr class ='optDiv'>
+    <div class='or' > OR </div>
+    </div>
+    <div class='option'>
+        <span class='optText'> Join an existing room! </span>
         <input type="text" id="roomName" name="roomName" placeholder="Enter Room ID">
         <button id='joinBtn'> Join </button>
     </div>
     <script src= {{ url_for('static', filename='indexScript.js') }}></script>
     {% endif %}
+</div>
 {% endblock %}

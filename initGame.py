@@ -14,19 +14,17 @@ class MJgame():
             [(s, v) for s in range(5) for v in range(9) for k in range(4)
              if s < 3 or (s == 3 and v < 4) or (s == 4 and v < 3)], dtype=self.setType)
         np.random.shuffle(self.deck)
-        self.start = 0
         self.playerDict = dict(zip(self.players, range(4)))
+        self.start = 0
         self.dealTiles()
-        self.setDict = dict(zip(self.players, [[] for i in range(4)]))
-        self.playerSets = [np.array([], dtype=self.setType) for i in range(4)]
-        self.playerWinInd = np.zeros(4, dtype=bool)
-        self.discPile = dict(zip(self.players, [[] for i in range(4)]))
-        self.turnNum = 0
-        self.turn = self.start
-        self.actionInd = []
-        self.whoseTurn = players[self.start]
 
     def dealTiles(self):
+        self.turn = self.start
+        self.whoseTurn = self.players[self.start]
+        self.turnNum = 0
+        self.setDict = dict(zip(self.players, [[] for i in range(4)]))
+        self.discPile = dict(zip(self.players, [[] for i in range(4)]))
+        self.actionInd = []
         np.random.shuffle(self.deck)
         self.deckLoc = 14 + 13*3
         hands = np.array(
@@ -60,8 +58,11 @@ class MJgame():
         tile = self.deck[self.deckLoc]
         self.deckLoc += 1
         self.handDict[player] = np.append(self.handDict[player], tile)
+        winBool = self.checkWin(self.handDict[player])
+        if winBool:
+            self.winPlayer = [player]
         tile = [int(tile['suit']), int(tile['value'])]
-        return(tile, player)
+        return(tile, player, winBool)
 
     def handSizes(self, player):
         offset = self.playerDict[player]+1
@@ -70,7 +71,6 @@ class MJgame():
 
     def showHand(self, player):
         # player should be authenticated first
-        self.handDict[player] = self.handDict[player]
         return([[int(tile['suit']), int(tile['value'])] for tile in self.handDict[player]])
 
     def showDiscards(self):
@@ -138,8 +138,11 @@ class MJgame():
         elif winInd > 0:
             discTile = [int(self.discTile['suit']), int(self.discTile['value'])]
             sets = self.setDict[player]
-            fullHand = self.showHand(player) + [[int(tile['suit']), int(tile['value'])]
-                                                for eachSet in sets for tile in eachSet]
+            fullHand = [[int(tile['suit']), int(tile['value'])]
+                        for eachSet in sets for tile in eachSet] + self.showHand(player)
+            if self.playerDict[player] != self.start:
+                self.start = (self.start + 1) % 4
+            self.dealTiles()
             return(player, discTile, '', fullHand)
         elif winInd == 0:
             self.winPlayer.pop()

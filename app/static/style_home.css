@@ -1,0 +1,89 @@
+span.header{
+    text-align: center;
+    font-weight: 500;
+    color: rgb(80, 80, 80);
+    background-color: white;
+    font-size: 26px;
+    display: block;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+    border-bottom: solid rgb(200, 200, 200) 0.5px;
+}
+
+span.optText{
+    display:block;
+    text-align:center;
+    margin-bottom:1em; 
+}
+
+a.roomLink{
+    color: rgb(80, 80, 80);
+    font-weight:500;
+}
+a.Btn {
+    background-color: rgb(240, 240, 240);
+    border: none;
+    color: rgb(100, 100, 100);
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+    margin: auto;
+    margin-top: 2em;
+    line-height: 3em;
+    width: 40%;
+    cursor: pointer;
+    font-weight: 500;
+    corner-radius: 4px;
+}
+#joinLink{
+    float:right;
+}
+
+#newBtn{
+    display:block;
+    background-color: rgb(224, 252, 215);
+}
+
+div.or{
+    height: 1em;
+    background-color: white;
+    width: fit-content;
+    padding: 0em 0.5em;
+    text-align: center;
+    margin: auto;
+    
+}
+hr.optDiv{
+    margin-top: 2em;
+    margin-bottom: -0.5em;
+    border-top: solid rgb(200, 200, 200) 0.5px ;
+
+}
+div.option{
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+#roomName {
+    width: 55%;
+    margin-left: 10%;
+    height: 2em;
+    font-size: 13px;
+    padding-left: 1em;
+    corner-radius: 4px;
+}
+#joinBtn {
+    width: 25%;
+    background-color: rgb(240, 240, 240);
+    border: none;
+    color: rgb(100, 100, 100);
+    text-align: center;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 2em;
+    height: 2em;
+    padding: 0em 1.4em;
+    cursor: pointer;
+    font-weight: 500;
+}

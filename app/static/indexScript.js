@@ -3,10 +3,11 @@ var joinBtn = document.getElementById('joinBtn')
 joinBtn.addEventListener('click', function(){
     var joinInput = document.getElementById('roomName')
     var roomName = joinInput.value;
+    roomName = encodeURIComponent(roomName)
     console.log(roomName)
     if (roomName !== ''){
         var link = '/room/'+roomName+'/join';
-        window.location.href = link;
+        window.location.replace= link;
     };
 });
 

@@ -26,6 +26,7 @@
     <div id='centerWin'>
         <div class='wins' id='win5'>
             <button class='buttonEnd' id='ignoreWinButton'> ignore </button>
+            <button class='buttonEnd' id='hideWinButton'> hide </button>
         </div>
         {% for i in range(5) %}
         <div class='wins' id='win{{ i }}'>
@@ -47,6 +48,7 @@
     {% set tileClass = ['tiles', 'tiles', 'tiles', 'discards'] %}
     {% set tileSubClass = ['tile', 'tile', 'tilehand', 'tilediscard'] %}
     {% for player in range(4) %}
+    <div class ='username' id='username{{ player }}'></div>
     {% for i in range(4) %}
     <div class = "{{ tileClass[i] }}" id="{{ tileLabel[i] }}{{ player }}">
         {% for flower in range(tileLen[i]) %}

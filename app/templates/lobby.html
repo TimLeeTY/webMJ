@@ -1,27 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <link rel='stylesheet' type='text/css' href='{{ url_for('static', filename='style_lobby.css') }}'/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script> 
     var roomID = '{{ roomID }}';
     </script>
     <script src=" {{ url_for('static', filename='lobbyScript.js') }}" ></script>
-    <h1> Room {{ roomID }}
-    {% if owner %}
-    <a class='closeRoom' href={{ url_for('closeRoom', roomID=roomID) }}> close room </a>
-    {% else %}
-    <a class='leaveRoom' href={{ url_for('leaveRoom', roomID=roomID) }}> leave room </a>
-    {% endif %} </h1>
+<div class='mainBlock'>
+    <span class='header'> Room <tt>{{ roomID }}</tt></span>
+    <hr class='optDiv'> 
+    <div class='divLabel'> Owner </div>
+    <div class='username'> {{ username }} </div>
+    <hr class='optDiv'> 
+    <div class='divLabel'> Players </div>
+    {% if players|length == 0 %}
+    <div class='username empty'> {{ playerName }}(empty) </div> 
+    {% endif %}
     {% for playerName in players %}
-    <div class='username'> 
-        {{ playerName }} {% if playerName == username %} (owner) {% endif %}
-        {% if owner and playerName != username %}
-        <a class='remove' href={{ url_for('removePlayer', roomID=roomID, username=playerName ) }}> remove user </a>
-        {% endif %}
-    </div>
+     <div class='username'> {{ playerName }} </div>
+        {% if owner %}
+            <a class='remove' href={{ url_for('removePlayer', roomID=roomID, username=playerName) }}> remove</a>
+        {% endif %} 
     {% endfor %}
     {% if owner %}
-    <a class='startGame' href={{ url_for('startGame', roomID=roomID) }}> start game </a>
-    {% endif %}
+    <a class='game' id='closeRoom' href={{ url_for('closeRoom', roomID=roomID) }}> close room </a>
+    <a class='game' id='startGame' href={{ url_for('startGame', roomID=roomID) }}> start game </a>
+    {% else %}
+    <a class='game' id='leaveRoom' href={{ url_for('leaveRoom', roomID=roomID) }}> leave room </a>
+    <a class='game' id='readyGame' href='' > ready </a>
+    {% endif %} 
+</div>
 
 {% endblock %}

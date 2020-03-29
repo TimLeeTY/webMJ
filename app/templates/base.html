@@ -1,20 +1,23 @@
 <html>
     <head>
       <title>webMJ</title>
+      <link rel='stylesheet' type='text/css' href='{{ url_for('static', filename='style_default.css') }}'/>
     </head>
     <body>
-        <div>
-            webMJ:
-            <a href="{{ url_for('index') }}">Home</a>
+        <div class='menuBar'> <b class='logo'>webMJ</b>
+            <a class='menuLink' href="{{ url_for('index') }}">Home</a>
             {% if current_user.is_anonymous %}
-            <a href="{{ url_for('login') }}">Login</a>
+            <a class='menuLink loginLink' href="{{ url_for('login') }}">Login</a>
             {% else %}
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a class='menuLink loginLink' href="{{ url_for('logout') }}">Logout</a>
             {% endif %}
-        </div><hr>
+            {% if roomID is defined %}
+            <a class='menuLink' id='leaveRoom' href="{{ url_for('leaveRoom', roomID=roomID) }}">Leave Room</a>
+            {% endif %}
+        </div>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        <ul>
+        <ul class='flashMes'>
             {% for message in messages %}
             <li>{{ message }}</li>
             {% endfor %}

@@ -1,3 +1,4 @@
+
 #playerWinText{
     transform: rotate(180deg);
 }
@@ -30,12 +31,27 @@ button.buttonWin{
 }
 
 div.mainGame{
+    /* margin-top: 1em; */
     position: relative;
-    width:800px;
-    height:800px;
-    margin:auto;
+    width: 45em;
+    height: 45em;
+    margin: auto;
+    margin-top: 4em;
     background-color: white;
+    border: 1px grey solid;
 } 
+
+div.username{
+    position: absolute;
+    display:inline-block;
+    width: 30%;
+    height: 6%;
+    background-color:white;
+    text-align: center;
+    white-space: pre-wrap;
+
+}
+
 
 div.tiles{
     position: absolute;
@@ -50,7 +66,7 @@ div.choices{
     width: 80%;
     height: 15%;
     transform: rotate(180deg);
-    margin-right: 6%;
+    margin-left: 10%;
 }
 
 div.wins{
@@ -140,14 +156,18 @@ div.winAdd{
     margin-right: 1%;
 }
 
+#username2{
+    right:35%;
+    top:-3%
+}
 #flower2{
+    right: 10%;
     right: 0%;
-    float:right;
     transform:rotate(180deg);
 }
 #set2{
     top: 6%;
-    right: 0%;
+    right: 10%;
     transform:rotate(180deg);
 }
 #hand2{
@@ -160,15 +180,21 @@ div.winAdd{
     left: 20%;
 }
 
+#username3{
+    left:3%;
+    top:35%;
+    transform: rotate(90deg);
+    transform-origin: top left;
+}
 #flower3{
     left: 6%;
-    top: 0%;
+    top: 10%;
     transform: rotate(90deg);
     transform-origin: top left;
 }
 #set3{
     left: 12%;
-    top: 0%;
+    top: 10%;
     transform-origin: top left;
     transform: rotate(90deg);
 }
@@ -188,10 +214,10 @@ div.winAdd{
 #center{
     position: absolute;
     background-color:white;
-    width: 30%;
-    height: 30%;
-    left: 33%;
-    top: 33%;
+    width: 40%;
+    height: 40%;
+    left: 30%;
+    top: 30%;
     z-index: 1;
     padding: 2%;
     transform: rotate(180deg);
@@ -210,14 +236,22 @@ div.winAdd{
     display:none;
     text-align: center;
 }
+
+#username1{
+    right: -3%;
+    top: 29%;
+    transform: rotate(-90deg);
+    transform-origin: bottom right;
+}
+
 #flower1{
-    top: 12%;
+    top: 2%;
     right: 0%;
     transform: rotate(-90deg);
     transform-origin: bottom right;
 }
 #set1{
-    top: 12%;
+    top: 2%;
     right: 6%;
     transform: rotate(-90deg);
     transform-origin: bottom right;
@@ -235,10 +269,18 @@ div.winAdd{
 }
 
 #flower0{
+    left:10%;
     bottom: 0%;
     margin-top:-6%;
 }
+
+#username0{
+    left:35%;
+    bottom:-3%
+}
+
 #set0{
+    left:10%;
     bottom: 6%;
 }
 #hand0{

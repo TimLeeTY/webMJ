@@ -28,14 +28,41 @@ function setInitial(){
         socket.emit('optChoice', roomID, 0);
         hideChoices() });
     var ignoreWinbtn=document.getElementById('ignoreWinButton');
-     ignoreWinbtn.addEventListener('click', function(){
+    ignoreWinbtn.addEventListener('click', function(){
         socket.emit('winChoice', roomID, 0);
-        console.log('ignore win click');
         hideWin() });
+    var hideWinbtn=document.getElementById('hideWinButton');
+    hideWinbtn.addEventListener('click', function(){
+        socket.emit('connected_to_game', roomID);
+        hideWin() });
+    var leaveButton = document.getElementById('leaveRoom');
+    var leaveLink = leaveButton.href
+    leaveButton.removeAttribute('href')
+    leaveButton.style.cursor = 'pointer'
+    leaveRoom.addEventListener('click', function(){
+        if (window.confirm('The game will end if you leave, are you sure?')){
+            window.location.replace(leaveLink)
+        }
+    });
+    
+}
+
+function writeNames(players, dealer){
+    for (var i=0; i < 4; i++){
+        var username = '<b>'+players[i]+'</b>'
+        if (players[i] == dealer){
+            username +='\n(dealer)'
+        }
+        (function(){
+            var c = i
+            var nameplate = document.getElementById('username'+c)
+            nameplate.innerHTML = username
+        })()
+    }
 }
 
 function drawHands(handSizes){
-    for (hand=0; hand <3; hand++){
+    for (var hand=0; hand <3; hand++){
         var t;
         var tile;
         for (t=0; t<handSizes[hand]; t++){
@@ -50,7 +77,7 @@ function drawHands(handSizes){
 }
 
 function drawDiscards(tiles, player){
-    for (t=0; t<tiles.length; t++){
+    for (var t=0; t<tiles.length; t++){
         var tile;
         var s=tiles[t][0];
         var v=tiles[t][1] + 1;
@@ -93,10 +120,16 @@ function draw(player){
     tile.style.backgroundImage = "url('media/b-0-.svg')";
 }
 
-function discardTile(newTile, player, loc){
+function discardTileDisp(newTile, player, loc){
     var discTile
     discTile=document.getElementById('discard-'+player+'-'+loc);
     discTile.style.backgroundImage = "url('media/"+newTile[0]+"-"+(newTile[1]+1)+"-.svg')";
+}
+
+function discardTileHand(player){
+    var tile;
+    tile=document.getElementById('hand-'+player+'-0');
+    tile.style.backgroundImage = "none";
 }
 
 function addSet(player, loc, newSet){
@@ -116,7 +149,7 @@ function showSet(newSet, player, loc){
     }
 }
 
-function handSize(player, size){
+function oneHand(player, size){
     var i;
     for (i=13; i>size; i--){
         var tile;
@@ -171,6 +204,7 @@ function showWin(tile, hands){
         })() }
     var choice5 = document.getElementById('win5');
     var cancelBtn = document.getElementById('ignoreWinButton');
+    cancelBtn.style.display = 'inline-block';
     var title = document.getElementById('playerWinText');
     title.innerHTML = '';
     choice5.style.display = 'inline-block';
@@ -191,8 +225,8 @@ function playerWin(player, tile, hand){
         })()};
     var choice5 = document.getElementById('win5');
     choice5.style.display = 'inline-block';
-    var cancelBtn = document.getElementById('ignoreWinButton');
-    cancelBtn.innerHTML= 'hide';
+    var hideBtn = document.getElementById('hideWinButton');
+    hideBtn.style.display = 'inline-block';
     var title = document.getElementById('playerWinText');
     title.textContent = player+' wins!';
     center.style.display= "inline-block";
@@ -237,16 +271,20 @@ function hideWin(){
     var choice5 = document.getElementById('win5');
     choice5.style.display = 'none';
     var cancelBtn = document.getElementById('ignoreWinButton');
-    cancelBtn.innerHTML= 'ignore';
+    cancelBtn.style.display = 'none';
+    var hideBtn = document.getElementById('hideWinButton');
+    hideBtn.style.display = 'none';
 }
 
 var socket = io();
 var playerList = [0, 0, 0, 0];
 
 socket.on('initialise', function(players, pos){
+    dealer = players[0]
     for (i=0; i<4; i++){
         playerList[i] = players[(i+pos)%4];
     }
+    writeNames(playerList, dealer)
 });
 
 socket.on('showHand', function(tiles){
@@ -257,9 +295,21 @@ socket.on('drawHands', function(handSizes){
     drawHands(handSizes);
 });
 
+socket.on('oneHand', function(player, handSize){
+    player = playerList.indexOf(player);
+    if (player !== 0){
+        oneHand(player, handSize)
+    }
+});
+
 socket.on('discardTileDisp', function(newTile, player, loc){
     player = playerList.indexOf(player);
-    discardTile(newTile, player, loc);;
+    discardTileDisp(newTile, player, loc);;
+});
+
+socket.on('discardTileHand', function(player){
+    player = playerList.indexOf(player);
+    discardTileHand(player);
 });
 
 socket.on('addSet', function(player, loc, newSet){
@@ -299,7 +349,7 @@ socket.on('showWin', function(tile, hands){
     showWin(tile, hands)
 });
 
-socket.on('playerWin', function(player, tile, hands){
+socket.on('playerWin', function(player, tile, hand){
     hideWin()
     playerWin(player, tile, hand)
 });

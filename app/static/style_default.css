@@ -1,0 +1,63 @@
+a{
+    text-decoration: none;
+}
+body{
+    font-family: Helvetica Neue;
+    font-weight: 400;
+    margin: 0px;
+}
+
+div.menuBar{
+    height: 2em;
+    border-bottom: grey solid 1px;
+    padding-top: 1%;
+    padding-left: 2%;
+    padding-right: 2%;
+    background-color: rgb(240, 240, 240);
+    color: rgb(40, 40, 40);
+    font-size: 20px;
+}
+
+a.menuLink{
+    float:left;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-decoration: none;
+    color: rgb(100, 100, 100);
+    font-size: 15px;
+    line-height: 25px;
+}
+
+b.Logo{
+    float:left
+}
+
+
+a.loginLink{
+    float:right;
+}
+
+ul.flashMes{
+    width: 90%;
+    margin: auto;
+    margin-top: 1em;
+    padding: 1em;
+    padding-left: 2em;
+    background-color: rgb(235, 235, 255);
+    color: rgb(100, 100,100);
+    list-style-type: none;
+    font-size: 16px;
+}
+
+div.mainBlock{
+    width:fit-content;
+    margin:auto;
+    margin-top: 4em;
+    color: rgb(80, 80, 80);
+    border: 0.5px rgb(200, 200, 200) solid;
+    padding: 2em;
+    padding-left: 4em;
+    padding-right: 4em;
+    border-radius: 4px
+}
+

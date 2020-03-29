@@ -68,6 +68,9 @@ def register():
 @app.route('/newRoom')
 @login_required
 def newRoom():
+    if current_user.username in gameRoom.activePlayers:
+        flash('you are already in a room')
+        return(redirect(url_for('index')))
     try:
         roomID = gameRoom.createRoom(current_user.username)
     except ValueError:
@@ -83,16 +86,15 @@ def room(roomID):
         flash('room {} does not exist'.format(roomID))
         return(redirect(url_for('index')))
     if not gameRoom.playerInRoom(roomID, current_user.username):
-        flash('you are not currently in room {}'.format(roomID))
         return(redirect(url_for('leaveRoom', roomID=roomID)))
     if gameRoom.roomContent[roomID]['playing']:
         return(redirect(url_for('game', roomID=roomID)))
     players = gameRoom.roomContent[roomID]['players']
-    players = [un if i < len(players) else '' for i, un in enumerate(players)]
-    owner = (current_user.username == gameRoom.roomContent[roomID]['owner'])
+    username = gameRoom.roomContent[roomID]['owner']
+    players = [un for un in players if un != username]
+    owner = (current_user.username == username)
     return render_template('lobby.html', title='lobby', players=players,
-                           roomID=roomID, owner=owner,
-                           username=gameRoom.roomContent[roomID]['owner'])
+                           roomID=roomID, owner=owner, username=username)
 
 
 @app.route('/room/<roomID>/join')
@@ -159,6 +161,7 @@ def discardTile(tile, roomID):
             return
         hand = gameRoom.game(roomID).showHand(current_user.username)
         emit('showHand', list(hand))
+        socketio.emit('discardTileHand', current_user.username, room=roomID)
         playerSid = gameRoom.roomContent[roomID]['sid'][player]
         if sT == 'win':
             socketio.emit('showWin', (tile, [sO]), room=playerSid)
@@ -210,15 +213,24 @@ def optChoice(roomID, setInd):
             socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
         else:
             loc, newSet = sT, sO
+            if len(newSet) == 4:
+                draw(roomID)
+                # draw
+                pass
             socketio.emit('addSet', (player, loc, newSet), room=roomID)
             hand = gameRoom.game(roomID).showHand(current_user.username)
             emit('showHand', list(hand))
+            handSize = len(hand)
+            socketio.emit('oneHand', (player, handSize), room=roomID)
 
 
 def draw(roomID):
-    tile, player = gameRoom.game(roomID).draw()
+    tile, player, winBool = gameRoom.game(roomID).draw()
     playerSid = gameRoom.roomContent[roomID]['sid'][player]
     socketio.emit('playerDraw', tile, room=playerSid)
+    if winBool:
+        hand = gameRoom.game(roomID).showHand(current_user.username)[:-1]
+        socketio.emit('showWin', (tile, [hand]), room=playerSid)
 
 
 @socketio.on('leave')
@@ -231,8 +243,12 @@ def leaveLobby(roomID):
 @login_required
 def leaveRoom(roomID):
     roomID = roomID.upper()
+    if not gameRoom.roomExists(roomID):
+        flash('room {} does not exist'.format(roomID))
+        return(redirect(url_for('index')))
     if not gameRoom.playerInRoom(roomID, current_user.username):
-        redirect(url_for('index'))
+        flash('you are not in room {}'.format(roomID))
+        return(redirect(url_for('index')))
     try:
         if gameRoom.roomOwner(roomID, current_user.username):
             return(redirect(url_for('closeRoom', roomID=roomID)))

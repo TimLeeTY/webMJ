@@ -43,12 +43,16 @@
         <h2 id='playerWinText'> </h2>
     </div>
      
-    {% set tileLen = [8, 16, 14, 21] %}
+    {% set tileLen = [8, 16, 14, 25] %}
     {% set tileLabel = ['flower', 'set', 'hand', 'discard'] %}
     {% set tileClass = ['tiles', 'tiles', 'tiles', 'discards'] %}
     {% set tileSubClass = ['tile', 'tile', 'tilehand', 'tilediscard'] %}
     {% for player in range(4) %}
-    <div class ='username' id='username{{ player }}'></div>
+    <div class ='username' id='username{{ player }}'>
+        <div class='triangle left-triangle' id='tri-left-{{ player }}'> </div>
+        <div class='usernameText' id='usernameText{{ player }}'> </div>
+        <div class='triangle right-triangle' id='tri-right-{{ player }}'> </div>
+    </div>
     {% for i in range(4) %}
     <div class = "{{ tileClass[i] }}" id="{{ tileLabel[i] }}{{ player }}">
         {% for flower in range(tileLen[i]) %}

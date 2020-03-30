@@ -44,20 +44,18 @@ function setInitial(){
             window.location.replace(leaveLink)
         }
     });
-    
 }
 
-function writeNames(players, dealer){
+function writeNames(players, wind, dealer, whoseTurn){
     for (var i=0; i < 4; i++){
-        var username = '<b>'+players[i]+'</b>'
-        if (players[i] == dealer){
-            username +='\n(dealer)'
+        var username = '<b>'+players[i]+'</b>'+'\n'+wind[i];
+        if (players[i] == whoseTurn){
+            document.getElementById('tri-left-'+i).style.display = 'inline-block';
+            document.getElementById('tri-right-'+i).style.display = 'inline-block';
         }
-        (function(){
-            var c = i
-            var nameplate = document.getElementById('username'+c)
-            nameplate.innerHTML = username
-        })()
+        var c = i
+        var nameplate = document.getElementById('usernameText'+c)
+        nameplate.innerHTML = username
     }
 }
 
@@ -77,22 +75,40 @@ function drawHands(handSizes){
 }
 
 function drawDiscards(tiles, player){
-    for (var t=0; t<tiles.length; t++){
-        var tile;
-        var s=tiles[t][0];
-        var v=tiles[t][1] + 1;
-        tile=document.getElementById('discard-'+player+'-'+t);
-        tile.style.backgroundImage = "url('/media/"+s+"-"+v+"-.svg')"
+    if (tiles.length == 0){
+        for (var t=0; t<22; t++){
+            var tile;
+            tile=document.getElementById('discard-'+player+'-'+t);
+            tile.style.backgroundImage = "none"
+        }
+    }
+    else{
+        for (var t=0; t<tiles.length; t++){
+            var tile;
+            var s=tiles[t][0];
+            var v=tiles[t][1] + 1;
+            tile=document.getElementById('discard-'+player+'-'+t);
+            tile.style.backgroundImage = "url('/media/"+s+"-"+v+"-.svg')"
+        }
     }
 }
 
 function drawSets(tiles, player){
-    for (t=0; t<tiles.length; t++){
-        var tile;
-        var s=tiles[t][0];
-        var v=tiles[t][1] + 1;
-        tile=document.getElementById('set-'+player+'-'+t);
-        tile.style.backgroundImage = "url('/media/"+s+"-"+v+"-.svg')"
+    if (tiles.length == 0){
+        for (var t=0; t<16; t++){
+            var tile;
+            tile=document.getElementById('set-'+player+'-'+t);
+            tile.style.backgroundImage = "none"
+        }
+    }
+    else{
+        for (t=0; t<tiles.length; t++){
+            var tile;
+            var s=tiles[t][0];
+            var v=tiles[t][1] + 1;
+            tile=document.getElementById('set-'+player+'-'+t);
+            tile.style.backgroundImage = "url('/media/"+s+"-"+v+"-.svg')"
+        }
     }
 }
 
@@ -137,6 +153,21 @@ function addSet(player, loc, newSet){
         var setTile
         setTile=document.getElementById('set-'+player+'-'+(loc+i));
         setTile.style.backgroundImage = "url('/media/"+newSet[i][0]+"-"+(newSet[i][1]+1)+"-.svg')";
+    }
+}
+
+function whoseTurn(player){
+    for (var i=0; i<4; i++){
+        var leftTri = document.getElementById('tri-left-'+i);
+        var rightTri = document.getElementById('tri-right-'+i);
+        if (i == player) {
+            leftTri.style.display = 'inline-block'
+            rightTri.style.display = 'inline-block'
+        }
+        else{
+            leftTri.style.display = 'none'
+            rightTri.style.display = 'none'
+        }
     }
 }
 
@@ -185,23 +216,20 @@ function showChoices(tile, types, sets){
     center.style.display= "inline-block";
 }
 
-function showWin(tile, hands){
+function showWin(tile, hand){
     var center = document.getElementById('centerWin');
-    for (var i=0; i<hands.length; i++){
+    var winButton = document.getElementById('WinButton0');
+    winButton.style.visibility = 'visible';
+    var choice = document.getElementById('win0');
+    choice.style.display = 'inline-block'
+    var newTile = document.getElementById('win0-0');
+    newTile.style.backgroundImage = "url('/media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
+    for (var j=0; j<hand.length; j++){
         (function(){
-            var winButton = document.getElementById('WinButton'+i);
-            winButton.style.visibility = 'visible';
-            var choice = document.getElementById('win'+i);
-            choice.style.display = 'inline-block'
-            var newTile = document.getElementById('win'+i+'-0');
-            newTile.style.backgroundImage = "url('/media/"+tile[0]+"-"+(tile[1]+1)+"-.svg";
-            for (var j=0; j<hands[i].length; j++){
-                (function(){
-                    var setTile
-                    setTile = document.getElementById('win'+i+'-'+(j+1));
-                    setTile.style.backgroundImage = "url('/media/"+hands[i][j][0]+"-"+(hands[i][j][1]+1)+"-.svg";
-                })()}
-        })() }
+            var setTile
+            setTile = document.getElementById('win0-'+(j+1));
+            setTile.style.backgroundImage = "url('/media/"+hand[j][0]+"-"+(hand[j][1]+1)+"-.svg";
+            })()}
     var choice5 = document.getElementById('win5');
     var cancelBtn = document.getElementById('ignoreWinButton');
     cancelBtn.style.display = 'inline-block';
@@ -278,13 +306,16 @@ function hideWin(){
 
 var socket = io();
 var playerList = [0, 0, 0, 0];
+var wind = ['east', 'south', 'west', 'north']
+var windList = [0, 0, 0, 0] 
 
-socket.on('initialise', function(players, pos){
+socket.on('initialise', function(players, pos, whoseTurn){
     dealer = players[0]
     for (i=0; i<4; i++){
         playerList[i] = players[(i+pos)%4];
+        windList[i] = wind[(i+pos)%4];
     }
-    writeNames(playerList, dealer)
+    writeNames(playerList, windList, dealer, whoseTurn)
 });
 
 socket.on('showHand', function(tiles){
@@ -304,7 +335,7 @@ socket.on('oneHand', function(player, handSize){
 
 socket.on('discardTileDisp', function(newTile, player, loc){
     player = playerList.indexOf(player);
-    discardTileDisp(newTile, player, loc);;
+    discardTileDisp(newTile, player, loc);
 });
 
 socket.on('discardTileHand', function(player){
@@ -314,7 +345,8 @@ socket.on('discardTileHand', function(player){
 
 socket.on('addSet', function(player, loc, newSet){
     player = playerList.indexOf(player);
-    addSet(player, loc, newSet);;
+    addSet(player, loc, newSet);
+    whoseTurn(player);
 });
 
 socket.on('drawDiscards', function(discDict){
@@ -329,13 +361,22 @@ socket.on('drawSets', function(setDict){
     }
 });
 
+socket.on('drawPlayerSet', function(player, sets){
+    player = playerList.indexOf(player);
+    drawSets(sets, player);;
+});
+
 socket.on('playerDraw', function(tile){
+    console.log(playerList[0]+'has drawn')
     playerDraw(tile)
 });
 
 socket.on('blindDraw', function(player){
     player = playerList.indexOf(player);
-    draw(tile)
+    whoseTurn(player);
+    if (player !== 0){
+        draw(player)
+    }
 });
 
 socket.on('joinRoom', function(players, roomID){
@@ -350,8 +391,8 @@ socket.on('showChoices', function(tile, types, sets){
     showChoices(tile, types, sets)
 });
 
-socket.on('showWin', function(tile, hands){
-    showWin(tile, hands)
+socket.on('showWin', function(tile, hand){
+    showWin(tile, hand)
 });
 
 socket.on('playerWin', function(player, tile, hand){

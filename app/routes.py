@@ -132,7 +132,8 @@ def connectGame(roomID):
             gameRoom.roomContent[roomID]['sid'][current_user.username] = request.sid
             hand = gameRoom.game(roomID).showHand(current_user.username)
             emit('initialise', (gameRoom.roomContent[roomID]['players'],
-                                gameRoom.game(roomID).playerDict[current_user.username]))
+                                gameRoom.game(roomID).playerDict[current_user.username],
+                                gameRoom.game(roomID).whoseTurn))
             emit('showHand', list(hand))
             emit('drawDiscards', gameRoom.game(roomID).showDiscards())
             emit('drawSets', gameRoom.game(roomID).showSets())
@@ -143,7 +144,7 @@ def connectGame(roomID):
                 if player == current_user.username:
                     playerSid = gameRoom.roomContent[roomID]['sid'][player]
                     if sT == 'win':
-                        socketio.emit('showWin', (tile, [sO]), room=playerSid)
+                        socketio.emit('showWin', (tile, sO), room=playerSid)
                     elif len(sO) > 0:
                         socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
             except(ValueError, TypeError, AttributeError):
@@ -157,14 +158,14 @@ def discardTile(tile, roomID):
             gameRoom.playerInRoom(roomID, player):
         try:
             player, tile, sT, sO = gameRoom.game(roomID).discard(tile, player)
-        except(TypeError, ValueError):
+        except(TypeError, ValueError, IndexError):
             return
         hand = gameRoom.game(roomID).showHand(current_user.username)
         emit('showHand', list(hand))
         socketio.emit('discardTileHand', current_user.username, room=roomID)
         playerSid = gameRoom.roomContent[roomID]['sid'][player]
         if sT == 'win':
-            socketio.emit('showWin', (tile, [sO]), room=playerSid)
+            socketio.emit('showWin', (tile, sO), room=playerSid)
         elif len(sO) > 0:
             socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
         else:
@@ -183,10 +184,10 @@ def winChoice(roomID, winInd):
         except (ValueError, AttributeError):
             return
         playerSid = gameRoom.roomContent[roomID]['sid'][player]
-        if winInd == 1 and sT == '':
+        if winInd > 0 and sT == '':
             socketio.emit('playerWin', (player, tile, sO), room=roomID)
         elif sT == 'win':
-            socketio.emit('showWin', (tile, [sO]), room=playerSid)
+            socketio.emit('showWin', (tile, sO), room=playerSid)
         elif len(sO) > 0:
             socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
         else:
@@ -202,7 +203,7 @@ def optChoice(roomID, setInd):
             gameRoom.playerInRoom(roomID, player):
         try:
             player, tile, sT, sO = gameRoom.game(roomID).act(player, setInd)
-        except IndexError:
+        except (TypeError, IndexError):
             return
         if setInd == 0 and len(sO) == 0:
             loc = sT
@@ -213,25 +214,31 @@ def optChoice(roomID, setInd):
             socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
         else:
             loc, newSet = sT, sO
-            if len(newSet) == 4:
-                draw(roomID)
-                # draw
-                pass
-            socketio.emit('addSet', (player, loc, newSet), room=roomID)
             hand = gameRoom.game(roomID).showHand(current_user.username)
             emit('showHand', list(hand))
             handSize = len(hand)
             socketio.emit('oneHand', (player, handSize), room=roomID)
+            if len(newSet) == 4:
+                draw(roomID)
+            if loc is None:
+                playerSets = gameRoom.game(roomID).showSets(p=player)
+                socketio.emit('drawPlayerSet', (player, playerSets), room=roomID)
+            else:
+                socketio.emit('addSet', (player, loc, newSet), room=roomID)
 
 
 def draw(roomID):
-    tile, player, winBool = gameRoom.game(roomID).draw()
+    tile, player, winBool, gongBool = gameRoom.game(roomID).draw()
     playerSid = gameRoom.roomContent[roomID]['sid'][player]
     socketio.emit('playerDraw', tile, room=playerSid)
-    socketio.emit('blindDraw', player, room=playerSid)
+    socketio.emit('blindDraw', player, room=roomID)
     if winBool:
         hand = gameRoom.game(roomID).showHand(current_user.username)[:-1]
-        socketio.emit('showWin', (tile, [hand]), room=playerSid)
+        socketio.emit('showWin', (tile, hand), room=playerSid)
+    if gongBool:
+        sT = ['gong']
+        sO = [[tile for i in range(3)]]
+        socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
 
 
 @socketio.on('leave')

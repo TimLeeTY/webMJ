@@ -31,7 +31,6 @@ button.buttonWin{
 }
 
 div.mainGame{
-    /* margin-top: 1em; */
     position: relative;
     width: 45em;
     height: 45em;
@@ -39,6 +38,7 @@ div.mainGame{
     margin-top: 4em;
     background-color: white;
     border: 1px grey solid;
+    border-radius: 4px;
 } 
 
 div.username{
@@ -291,4 +291,28 @@ div.winAdd{
     right: 20%;
     transform: rotate(180deg);
 }
+div.triangle{
+    display: none;
+    width: 0;
+    height: 0;
+    border-top: 1em solid transparent;
+    border-right: 1em solid rgb(150, 150, 150);
+    border-bottom: 1em solid transparent;
+    position: absolute;
+    top: 15%;
+}
+div.left-triangle{
+    left: 0px;
+    transform: rotate(180deg);
+}
+div.right-triangle{
+    right: 0px;
+}
 
+div.usernameText{
+    position: absolute;
+    top:0px;
+    height: 100%;
+    width: 100%;
+
+}

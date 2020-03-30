@@ -162,6 +162,8 @@ def discardTile(tile, roomID):
             return
         hand = gameRoom.game(roomID).showHand(current_user.username)
         emit('showHand', list(hand))
+        handSize = len(hand)
+        socketio.emit('oneHand', (player, handSize), room=roomID)
         socketio.emit('discardTileHand', current_user.username, room=roomID)
         playerSid = gameRoom.roomContent[roomID]['sid'][player]
         if sT == 'win':

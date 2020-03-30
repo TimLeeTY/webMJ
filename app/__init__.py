@@ -12,6 +12,6 @@ db = SQLAlchemy(app)
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.login_view = 'login'
-gameRoom = GameRoom(DEV=True)
+gameRoom = GameRoom()
 
 from app import models, routes

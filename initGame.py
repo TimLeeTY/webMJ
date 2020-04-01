@@ -18,6 +18,14 @@ class MJgame():
         self.start = 0
         self.dealTiles()
 
+    def export_to_json(self):
+        # export all variables to a JSON string
+        pass
+
+    def import_from_json(self, JSON_string):
+        # import all variables to a JSON string
+        pass
+
     def dealTiles(self):
         self.turn = self.start
         self.whoseTurn = self.players[self.start]
@@ -240,10 +248,11 @@ class MJgame():
 
 class GameRoom():
     def __init__(self, maxRooms=10, DEV=False):
-        self.rooms = ['TEST']
+        self.rooms = []
         self.roomContent = dict()
         self.activePlayers = []
         if DEV:
+            self.rooms = ['TEST']
             self.roomContent['TEST'] = {
                 'owner': 'tim',
                 'players': ['tim', 'alice', 'bob', 'candice'],

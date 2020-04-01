@@ -3,7 +3,7 @@ from app import app, db, gameRoom, socketio
 from app.forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_socketio import join_room, leave_room, emit
-from app.models import User
+from app.models import User, Room
 from werkzeug.urls import url_parse
 
 

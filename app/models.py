@@ -20,6 +20,15 @@ class User(UserMixin, db.Model):
         return('<User {}>'.format(self.username))
 
 
+class Room(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    player1_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    player2_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    player3_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    JSON_string = db.Column(db.String(140))
+
+
 @login.user_loader
 def load_user(id):
     return(User.query.get(int(id)))

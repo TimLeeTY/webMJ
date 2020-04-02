@@ -1,24 +1,20 @@
 # WebMJ: A WebApp to play Mahjong
 
 A simple html based way to play Mahjong online!
-WebMJ uses a ```Python-Flask``` backend with asynchronous websocket communication via ```Socket.IO```.
+WebMJ uses a `Python-Flask` backend with asynchronous websocket communication via `Socket.IO`.
 
 ## Requirements:
-- ```Python 3.x```
-- ```Flask```
-  - ```Flask-Socketio```
-  - ```Flask-Login```
-  - ```Flask-SQLAlchemy```
-- ```NumPy``` 
+- `Python 3.x`
+- `Flask`
+  - `Flask-Socketio`
+  - `Flask-Login`
+  - `Flask-SQLAlchemy`
+- `NumPy`
 
 ## TODO:
-- Test win conditions
 - Handle win events:
-  - decide next dealer,
-  - deal new tiles,
-  - refresh clients
+  - fix javascript to properly show order after first game
+  - (currently `whoseTurn` and `addSets` are still not working properly
   - (calculate points for winner)
   - (handle multiple winning combinations)
-- Handle refresh events:
-  - Show Win options
-- Add database logging of games 
+- Add indicators for actions taken

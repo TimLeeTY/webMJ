@@ -1,1 +1,1 @@
-web: gunicorn webMJ:app
+web: gunicorn --worker-class eventlet webMJ:app

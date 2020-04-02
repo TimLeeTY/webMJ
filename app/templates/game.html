@@ -31,13 +31,13 @@
         {% for i in range(5) %}
         <div class='wins' id='win{{ i }}'>
             <button class='buttonWin' id='WinButton{{ i }}'>win!</button>
-            {% for j in range(13) %}
+            <div class='tilewin' id='win{{ i }}-0'>
+            </div>
+            <div class='winAdd'> + </div>
+            {% for j in range(17) %}
             <div class='tilewin' id='win{{ i }}-{{ j+1 }}'>
             </div>
             {% endfor %}
-            <div class='winAdd'> + </div>
-            <div class='tilewin' id='win{{ i }}-0'>
-            </div>
         </div>
         {% endfor %}
         <h2 id='playerWinText'> </h2>

@@ -7,7 +7,7 @@ joinBtn.addEventListener('click', function(){
     console.log(roomName)
     if (roomName !== ''){
         var link = '/room/'+roomName+'/join';
-        window.location.replace= link;
+        window.location.replace(link);
     };
 });
 

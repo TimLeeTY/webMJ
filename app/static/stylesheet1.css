@@ -21,9 +21,13 @@ button.buttonEnd{
     margin-top: 5%;
 }
 
+#hideWinButton{
+    display: none;
+}
+
 button.buttonWin{
     height: 60%;
-    top: 120%;
+    top: 180%;
     position: absolute;
     width: 15%;
     margin-left: -2%;
@@ -76,11 +80,11 @@ div.wins{
     height: 10%;
     transform: rotate(180deg);
     margin-left: 7%;
-    margin-top: 8%;
 }
 
 #win5{
-    margin-top:0%;
+    margin-top: 5%;
+    margin-bottom: 10%;
 }
 
 div.discards{
@@ -136,7 +140,7 @@ div.tilewin{
     margin-right: -1%;
     display: inline-block;
     background-repeat: no-repeat;
-    background-image: url('/media/4-1-.svg'); 
+    /* background-image: url('/media/4-1-.svg'); */
 }
 
 div.choicetext{

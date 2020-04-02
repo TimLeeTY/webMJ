@@ -1,155 +1,155 @@
-from random import choices
-from string import ascii_uppercase
+from random import shuffle
 import numpy as np
 
 
 class MJgame():
-    def __init__(self, players):
-        if len(players) != 4:
-            raise ValueError('must have 4 players')
-        self.players = players
-        self.setType = [('suit', int), ('value', int)]
-        self.handSize = 13  # Must be 1 mod 3
-        self.deck = np.array(
-            [(s, v) for s in range(5) for v in range(9) for k in range(4)
-             if s < 3 or (s == 3 and v < 4) or (s == 4 and v < 3)], dtype=self.setType)
-        np.random.shuffle(self.deck)
-        self.playerDict = dict(zip(self.players, range(4)))
-        self.start = 0
-        self.dealTiles()
+    def __init__(self, flowers=False, in_dict=None):
+        if in_dict is not None:
+            self.import_from_json(in_dict)
+        else:
+            self.handSize = 13  # Must be 1 mod 3
+            self.deck = [i for i in range(34) for j in range(4)]
+            if flowers:
+                self.deck += [i+34 for i in range(4) for j in range(2)]
+            shuffle(self.deck)
+            self.start = 0
+            self.dealTiles()
+            self.sT = [[], [], []]
+            self.sO = [[], [], []]
 
-    def export_to_json(self):
-        # export all variables to a JSON string
-        pass
-
-    def import_from_json(self, JSON_string):
-        # import all variables to a JSON string
-        pass
+    def import_from_json(self, in_dict):
+        self.handSize = in_dict["handSize"]
+        self.deck = in_dict["deck"]
+        self.start = in_dict["start"]
+        self.turn = in_dict["turn"]
+        self.turnNum = in_dict["turnNum"]
+        self.setDict = in_dict["setDict"]
+        self.discPile = in_dict["discPile"]
+        self.discTile = in_dict["discTile"]
+        self.actionInd = in_dict["actionInd"]
+        self.winPlayer = in_dict["winPlayer"]
+        self.addGong = in_dict["addGong"]
+        self.gongBool = in_dict["gongBool"]
+        self.winBool = in_dict["winBool"]
+        self.deckLoc = in_dict["deckLoc"]
+        self.handDict = in_dict["handDict"]
+        self.sT = in_dict["sT"]
+        self.sO = in_dict["sO"]
 
     def dealTiles(self):
         self.turn = self.start
-        self.whoseTurn = self.players[self.start]
         self.turnNum = 0
-        self.setDict = dict(zip(self.players, [[] for i in range(4)]))
-        self.discPile = dict(zip(self.players, [[] for i in range(4)]))
+        self.setDict = [[] for i in range(4)]
+        self.discPile = [[] for i in range(4)]
         self.actionInd = []
-        np.random.shuffle(self.deck)
+        self.winPlayer = []
+        self.addGong = False
+        self.discTile = None
+        self.gongBool = False
+        self.winBool = False
+        shuffle(self.deck)
         self.deckLoc = 14 + 13*3
-        hands = np.array(
-            [self.deck[1+pos*self.handSize:1+(1+pos)*self.handSize]
-             if pos != 0 else self.deck[:self.handSize+1] for pos in range(4)])
-        hands = [np.sort(hand, order=['suit', 'value']) for hand in hands]
-        hands[0] = np.roll(hands[0], -1, axis=0)
-        players = [self.players[(i+self.start) % 4] for i in range(4)]
-        self.handDict = dict(zip(players, hands))
+        hands = [self.deck[1+pos*self.handSize:1+(1+pos)*self.handSize]
+                 if pos != self.start else self.deck[:self.handSize+1] for pos in range(4)]
+        hands = [sorted(i) for i in hands]
+        hands[0] = hands[0][1:] + hands[0][0:1]
+        self.handDict = hands
 
     def addSet(self, player, newSet):
-        nS = newSet
-        newSet = np.array([(a[0], a[1]) for a in nS], dtype=self.setType)
         if self.addGong:
             self.setDict[player].remove(newSet)
-            setU, setC = newSet[0], 1
+            setU, setC = [newSet[0]], [1]
         else:
             setU, setC = np.unique(newSet, return_counts=True)
+        if self.gongBool:
+            setC += 1
         uniq, count = np.unique(self.handDict[player], return_counts=True)
         for i, each in enumerate(setU):
             count[uniq == each] -= setC[i]
-        self.handDict[player] = [u for i, u in enumerate(uniq) for j in range(count[i])]
+        self.handDict[player] = [int(u) for i, u in enumerate(uniq) for j in range(count[i])]
         if not self.gongBool:
-            addTile = self.discPile[self.players[(self.turn - 1) % 4]].pop()
-            self.turn = self.playerDict[player]
-            self.whoseTurn = player
+            addTile = self.discPile[(self.turn - 1) % 4].pop()
+            self.turn = player
+            loc = sum([len(i) for i in self.setDict[player]])
         else:
             addTile = newSet[0]
-        newSet = np.append(newSet, addTile)
-        if self.addGong:
             loc = None
-        else:
-            loc = sum([len(i) for i in self.setDict[player]])
+        newSet.append(addTile)
         self.setDict[player].append(newSet)
         self.actionInd = []
-        nS.append([int(addTile['suit']), int(addTile['value'])])
-        return(player, nS, loc)
+        return(player, newSet, loc)
 
     def draw(self):
-        player = self.whoseTurn
+        player = self.turn
         tile = self.deck[self.deckLoc]
+        print("player {} has drawn".format(player))
         self.deckLoc += 1
-        self.handDict[player] = np.append(self.handDict[player], tile)
+        self.handDict[player].append(tile)
         self.winBool = self.checkWin(self.handDict[player])
         if self.winBool:
             self.winPlayer = [player]
-        self.addGong = any(
-            np.array_equal(x, np.array([tile for i in range(3)])) for x in self.setDict[player])
-        self.gongBool = np.count_nonzero(self.handDict[player] == tile) == 4 or self.addGong
+        self.addGong = any(np.array_equal(x, [tile for i in range(3)])
+                           for x in self.setDict[player])
+        self.gongBool = self.handDict[player].count(tile) == 4 or self.addGong
         if self.gongBool:
             self.actionInd = [0]
-            self.sO = [np.array([tile for i in range(3)])]
-        tile = [int(tile['suit']), int(tile['value'])]
+            self.sO = [[[tile for i in range(3)]]]
+            self.sT = ['gong']
         return(tile, player, self.winBool, self.gongBool)
 
     def handSizes(self, player):
-        offset = self.playerDict[player]+1
-        handSizes = [len(self.handDict[self.players[(i+offset) % 4]]) for i in range(3)]
+        handSizes = [len(self.handDict[(i+player+1) % 4]) for i in range(3)]
         return(handSizes)
 
     def showHand(self, player):
-        # player should be authenticated first
-        return([[int(tile['suit']), int(tile['value'])] for tile in self.handDict[player]])
+        return(self.handDict[player])
 
     def showDiscards(self):
-        discPile = {player: [[int(tile['suit']), int(tile['value'])] for tile in discs]
-                    for player, discs in self.discPile.items()}
-        return(discPile)
+        return(self.discPile)
 
     def showSets(self, p=None):
         if p is None:
-            playerSets = {
-                player: [[int(tile['suit']), int(tile['value'])] for eachSet in sets
-                         for tile in eachSet] for player, sets in self.setDict.items()}
+            return([[tile for s in pSets for tile in s] for pSets in self.setDict])
         else:
-            playerSets = [
-                [int(tile['suit']), int(tile['value'])]
-                for eachSet in self.setDict[p] for tile in eachSet]
-        return(playerSets)
+            return([tile for s in self.setDict[p] for tile in s])
 
-    def discard(self, tile, player):
-        if not (self.whoseTurn == player and len(self.actionInd) == 0):
+    def discard(self, tileInd, player):
+        if not (self.turn == player and len(self.actionInd) == 0 and
+                len(self.handDict[player]) % 3 == 2):
             raise ValueError('not this players turn')
         self.gongBool, self.winBool, self.addGong = False, False, False
-        tile = self.handDict[player][tile]
+        tile = self.handDict[player][tileInd]
         self.discTile = tile
         self.discPile[player].append(tile)
         uniq, count = np.unique(self.handDict[player], return_counts=True)
         count[uniq == tile] -= 1
-        self.handDict[player] = np.array(
-            [u for i, u in enumerate(uniq) for j in range(count[i])])
-        self.handDict[player] = np.sort(
-            self.handDict[player], order=['suit', 'value'])
+        self.handDict[player] = sorted(
+            [int(u) for i, u in enumerate(uniq) for j in range(count[i])])
         self.turn = (self.turn + 1) % 4
-        self.whoseTurn = self.players[self.turn]
-        return(self.decideOpt(self.whoseTurn, tile))
+        return(self.decideOpt(tile))
 
     def action(self):
-        discTile = [int(self.discTile['suit']), int(self.discTile['value'])]
+        if self.gongBool:
+            discTile = self.sO[0][0]
+        else:
+            discTile = self.discTile
         if len(self.winPlayer) > 0:
             player = self.winPlayer[0]
             sets = self.setDict[player]
-            fullHand = [[int(tile['suit']), int(tile['value'])]
-                        for eachSet in sets for tile in eachSet] + self.showHand(player)
+            fullHand = [tile for eachSet in sets for tile in eachSet] + self.handDict[player]
             return(player, discTile, 'win', fullHand)
-        if len(self.actionInd) == 0:
-            player = self.players[(self.turn - 1) % 4]
-            return(player, discTile, len(self.discPile[player]) - 1, [])
-        else:
+        elif len(self.actionInd) > 0:
             ind = self.actionInd[0]
-            playerAction = self.players[(self.turn + ind) % 4]
+            playerAction = (self.turn + ind) % 4
             sT, sO = self.sT[ind], self.sO[ind]
             return(playerAction, discTile, sT, sO)
+        else:
+            player = (self.turn - 1) % 4
+        return(player, discTile, len(self.discPile[player]) - 1, [])
 
     def act(self, player, setInd):
         ind = self.actionInd[0]
-        playerAction = self.players[(self.turn + ind) % 4]
+        playerAction = (self.turn + ind) % 4
         if player == playerAction:
             if setInd == 0 and self.gongBool:
                 return(None)
@@ -167,11 +167,14 @@ class MJgame():
         if player != self.winPlayer[0]:
             raise ValueError('player not eligible')
         elif winInd > 0:
-            discTile = [int(self.discTile['suit']), int(self.discTile['value'])]
+            if self.winBool:
+                discTile = self.handDict[player].pop()
+            else:
+                discTile = self.discTile
             sets = self.setDict[player]
-            fullHand = [[int(tile['suit']), int(tile['value'])]
-                        for eachSet in sets for tile in eachSet] + self.showHand(player)
-            if self.playerDict[player] != self.start:
+            fullHand = self.handDict[player] + [tile for eachSet in sets for tile in eachSet]
+            print('fullHand ', fullHand)
+            if player != self.start:
                 self.start = (self.start + 1) % 4
             self.dealTiles()
             return(player, discTile, '', fullHand)
@@ -181,14 +184,15 @@ class MJgame():
         else:
             return(None)
 
-    def decideOpt(self, player, tile):
-        s, v = tile['suit'], tile['value']
+    def decideOpt(self, tile):
+        player = self.turn
+        s, v = tile // 9, tile % 9
         sT = [[], [], []]
         sO = [[], [], []]
         self.turnNum += 1
         self.winPlayer = []
         for i in range(3):
-            check = self.players[(i+self.playerDict[player]) % 4]
+            check = (i+player) % 4
             hand = self.handDict[check]
             if self.checkPlayerWin(check):
                 print('player {} can win'.format(check))
@@ -196,21 +200,21 @@ class MJgame():
             uniq, count = np.unique(hand, return_counts=True)
             if count[uniq == tile] >= 2:
                 sT[i].append('pong')
-                sO[i].append([[int(s), int(v)] for i in range(2)])
+                sO[i].append([tile for i in range(2)])
                 if count[uniq == tile] == 3:
                     sT[i].append('gong')
-                    sO[i].append([[int(s), int(v)] for i in range(3)])
+                    sO[i].append([tile for i in range(3)])
             if i == 0 and s < 3:
                 for j in [-2, 1]:
                     if 0 <= v+j and v+j < 8:
-                        pair = np.array([(s, v+i+j) for i in range(2)], dtype=self.setType)
+                        pair = [tile+i+j for i in range(2)]
                         if all(i in uniq for i in pair):
-                            sO[0].append([[int(s), int(va['value'])] for va in pair])
+                            sO[0].append(pair)
                             sT[0].append('run')
                 if v != 0 and v != 8:
-                    pair = np.array([(s, v-1), (s, v+1)], dtype=self.setType)
+                    pair = [tile - 1, tile + 1]
                     if all(i in uniq for i in pair):
-                        sO[0].append([[int(s), int(va['value'])] for va in pair])
+                        sO[0].append(pair)
                         sT[0].append('run')
         self.sT, self.sO = sT, sO
         self.actionInd = [i for i in range(2, -1, -1) if len(sT[i]) != 0]
@@ -220,12 +224,16 @@ class MJgame():
         """ checks if hand can be divided evenly into sets by recursion"""
         if len(a) == 0:
             return(True)
-        a = np.sort(a, order=['suit', 'value'])
-        if (a[0]['suit'] == a[1]['suit'] == a[2]['suit']):
-            if (a[0]['value'] == a[1]['value'] == a[2]['value']):
-                return((self.threeCheck(a[3:])))
-            if a[0]['suit'] < 3 and (a[0]['value'] == a[1]['value']-1 == a[2]['value']-2):
-                return((self.threeCheck(a[3:])))
+        a = sorted(a)
+        if (a[0] == a[1] == a[2]):
+            return(self.threeCheck(a[3:]))
+        aCheck = a[0]
+        if (aCheck // 9 < 3) and (aCheck % 9 < 7):
+            if a.count(aCheck+1) > 0 and a.count(aCheck+2) > 0:
+                a.remove(aCheck)
+                a.remove(aCheck+1)
+                a.remove(aCheck+2)
+                return(self.threeCheck(a))
         return(False)
 
     def checkPlayerWin(self, player):
@@ -236,59 +244,42 @@ class MJgame():
             raise ValueError('hand wrong size')
         uniq, count = np.unique(hand, return_counts=True)
         for ind, c in enumerate(count):
-            if c > 1:
+            if c >= 2:
                 # Choose pair and check for sets
                 count[ind] -= 2
-                testArr = np.array([u for i, u in enumerate(uniq) for j in range(count[i])])
+                testArr = [u for i, u in enumerate(uniq) for j in range(count[i])]
                 if self.threeCheck(testArr):
                     return(True)
                 count[ind] += 2
         return(False)
 
 
+"""
 class GameRoom():
-    def __init__(self, maxRooms=10, DEV=False):
-        self.rooms = []
-        self.roomContent = dict()
-        self.activePlayers = []
-        if DEV:
-            self.rooms = ['TEST']
-            self.roomContent['TEST'] = {
-                'owner': 'tim',
-                'players': ['tim', 'alice', 'bob', 'candice'],
-                'playing': False,
-                'sid': {}
-            }
-            self.activePlayers = ['tim', 'alice', 'bob', 'candice']
+    def __init__(self, Room, maxRooms=10):
+        self.Room = Room
+        self.rooms = Room.query.all()
         self.maxRooms = maxRooms
-        self.isFull = False
 
-    def createRoom(self, username):
-        if (not self.isFull) and (username not in self.activePlayers):
+    def createRoom(self, user_id):
+        if len(self.rooms) < self.maxRooms:
             roomID = ''.join(choices(ascii_uppercase, k=4))
-            while roomID in self.rooms:
+            while self.Room.query.filter_by(roomID=roomID).first() is None:
                 roomID = ''.join(choices(ascii_uppercase, k=4))
-            self.rooms.append(roomID)
-            self.activePlayers.append(username)
-            self.roomContent[roomID] = {}
-            self.roomContent[roomID]['owner'] = username
-            self.roomContent[roomID]['players'] = [username]
-            self.roomContent[roomID]['sid'] = {}
-            self.roomContent[roomID]['playing'] = False
-            if len(self.rooms) == self.maxRooms:
-                self.isFull = True
-            return(roomID)
-        else:
-            raise ValueError('too many rooms active')
+            room = Room(roomID=roomID, owner_id=user_id)
+            db.session.add(room)
+            db.session.commit()
+            return(True)
+        return(False)
 
     def closeRoom(self, roomID):
-        if roomID in self.rooms:
-            self.rooms = [i for i in self.rooms if i != roomID]
-            self.activePlayers = [i for i in self.activePlayers
-                                  if i not in self.roomContent[roomID]['players']]
-            del self.roomContent[roomID]
+        room = self.Room.query.filter_by(roomID=roomID).first()
+        if room is not None:
+            db.session.delete(room)
+            db.session.commit()
 
     def addPlayer(self, roomID, username):
+        room = self.Room.query.filter_by(roomID=roomID).first()
         if len(self.roomContent[roomID]['players']) >= 4 or roomID not in self.rooms:
             raise(ValueError('room is full'))
         else:
@@ -339,3 +330,4 @@ class GameRoom():
             return(self.roomContent[roomID]['games'])
         except KeyError:
             pass
+"""

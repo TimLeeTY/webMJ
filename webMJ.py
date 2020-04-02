@@ -7,6 +7,7 @@ def make_shell_context():
     return {'db': db, 'User': User}
 
 
+db.create_all()
 if __name__ == '__main__':
     db.drop_all()
     db.create_all()

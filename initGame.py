@@ -94,7 +94,7 @@ class MJgame():
         if self.gongBool:
             self.actionInd = [0]
             self.sO = [[[tile for i in range(3)]]]
-            self.sT = ['gong']
+            self.sT = [['gong']]
         return(tile, player, self.winBool, self.gongBool)
 
     def handSizes(self, player):
@@ -252,82 +252,3 @@ class MJgame():
                     return(True)
                 count[ind] += 2
         return(False)
-
-
-"""
-class GameRoom():
-    def __init__(self, Room, maxRooms=10):
-        self.Room = Room
-        self.rooms = Room.query.all()
-        self.maxRooms = maxRooms
-
-    def createRoom(self, user_id):
-        if len(self.rooms) < self.maxRooms:
-            roomID = ''.join(choices(ascii_uppercase, k=4))
-            while self.Room.query.filter_by(roomID=roomID).first() is None:
-                roomID = ''.join(choices(ascii_uppercase, k=4))
-            room = Room(roomID=roomID, owner_id=user_id)
-            db.session.add(room)
-            db.session.commit()
-            return(True)
-        return(False)
-
-    def closeRoom(self, roomID):
-        room = self.Room.query.filter_by(roomID=roomID).first()
-        if room is not None:
-            db.session.delete(room)
-            db.session.commit()
-
-    def addPlayer(self, roomID, username):
-        room = self.Room.query.filter_by(roomID=roomID).first()
-        if len(self.roomContent[roomID]['players']) >= 4 or roomID not in self.rooms:
-            raise(ValueError('room is full'))
-        else:
-            if username not in self.activePlayers:
-                self.roomContent[roomID]['players'].append(username)
-                self.activePlayers.append(username)
-                return(self.roomContent[roomID]['players'])
-            elif username in self.activePlayers:
-                raise(KeyError('player already in another room'))
-
-    def removePlayer(self, roomID, username):
-        try:
-            if username in self.roomContent[roomID]['players']:
-                self.roomContent[roomID]['players'] = \
-                    [un for un in self.roomContent[roomID]['players'] if un != username]
-                self.activePlayers = [un for un in self.activePlayers if un != username]
-                del self.roomContent[roomID]['sid'][username]
-                return(self.roomContent[roomID]['players'])
-            else:
-                raise(ValueError('player not in room'))
-        except KeyError:
-            pass
-
-    def startGame(self, roomID):
-        if len(self.roomContent[roomID]['players']) < 4 or roomID not in self.rooms or \
-                self.roomContent[roomID]['playing']:
-            raise(ValueError('room not full yet'))
-        else:
-            self.roomContent[roomID]['games'] = MJgame(self.roomContent[roomID]['players'])
-            self.roomContent[roomID]['playing'] = True
-
-    def endGame(self, roomID):
-        if self.roomContent[roomID]['playing']:
-            self.roomContent[roomID]['playing'] = False
-            del self.roomContent[roomID]['games']
-
-    def roomExists(self, roomID):
-        return(roomID in self.rooms)
-
-    def playerInRoom(self, roomID, username):
-        return(username in self.roomContent[roomID]['players'])
-
-    def roomOwner(self, roomID, username):
-        return(username == self.roomContent[roomID]['owner'])
-
-    def game(self, roomID):
-        try:
-            return(self.roomContent[roomID]['games'])
-        except KeyError:
-            pass
-"""

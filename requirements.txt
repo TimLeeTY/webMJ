@@ -14,7 +14,6 @@ SQLAlchemy==1.3.15
 Werkzeug==1.0.0
 WTForms==2.2.1
 
-Socket.io JS Client 1.4.8
 Flask-SocketIO==2.8.2
 python-engineio==1.1.0
 python-socketio==1.6.1

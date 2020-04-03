@@ -62,6 +62,7 @@ a.gitHub-link{
     position: fixed;
     bottom: 0;
     right: 1em;
+    z-index:1;
 }
 
 #gitHubMark{

@@ -381,10 +381,10 @@ def closeRoom(roomID):
     if room.owner_id != user.id:
         flash('you are not the owner of room {}'.format(roomID))
         return(redirect(url_for('room', roomID=roomID)))
-    for player in room.players:
+    for player in room.players.all():
         player.in_room = None
         player.order = None
-    del room
+    db.session.delete(room)
     db.session.commit()
     flash('room {} is closed'.format(roomID))
     socketio.emit('playerChange', room=roomID)

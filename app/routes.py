@@ -83,6 +83,7 @@ def newRoom():
         room.players.append(user)
         user.in_room = room.roomID
         user.order = 0
+        user.ready = True
         db.session.add(room)
         db.session.commit()
     return(redirect(url_for('room', roomID=roomID)))
@@ -102,11 +103,14 @@ def room(roomID):
     if room.JSON_string is not None:
         return(redirect(url_for('game', roomID=roomID)))
     players_q = room.players.all()
-    players = [player.username for player in players_q if player.id != room.owner_id]
-    username = [player.username for player in players_q if player.id == room.owner_id][0]
-    owner = (user.username == username)
+    try:
+        players = [player for player in players_q if player.id != room.owner_id]
+        username = [player.username for player in players_q if player.id == room.owner_id][0]
+    except IndexError:
+        flash('room {} does not exist'.format(roomID))
+        return(redirect(url_for('index')))
     return render_template('lobby.html', title='lobby', players=players,
-                           roomID=roomID, owner=owner, username=username)
+                           roomID=roomID, username=username, user=user)
 
 
 @app.route('/room/<roomID>/join')
@@ -127,6 +131,7 @@ def joinRoom(roomID):
         flash('room {} is full'.format(roomID))
         return(redirect(url_for('index')))
     user.in_room = room.id
+    user.ready = False
     for i in range(1, 4):
         if i not in [player.order for player in players]:
             user.order = i
@@ -142,10 +147,22 @@ def connectLobby(roomID):
     room = Room.query.filter_by(roomID=roomID).first()
     if current_user.is_authenticated and room is not None:
         user = User.query.filter_by(username=current_user.username).first()
-        if user.in_room == roomID:
+        if user is not None and user.in_room == roomID:
             join_room(roomID)
             user.player_sid = request.sid
             db.session.commit()
+
+
+@socketio.on('lobby_ready')
+def lobbyReady(roomID, ready_bool):
+    roomID = roomID.upper()
+    room = Room.query.filter_by(roomID=roomID).first()
+    if current_user.is_authenticated and room is not None:
+        user = User.query.filter_by(username=current_user.username).first()
+        if user is not None and user.in_room == roomID:
+            user.ready = ready_bool
+            db.session.commit()
+            socketio.emit('playerReady', (user.order, ready_bool), room=roomID)
 
 
 @socketio.on('connected_to_game')
@@ -274,7 +291,6 @@ def optChoice(roomID, setInd):
                     hand = game.showHand(userInd)
                     emit('showHand', hand)
                     handSize = len(hand)
-                    socketio.emit('oneHand', (player, handSize), room=roomID)
                     if len(newSet) == 4:
                         draw(roomID, game)
                     if loc is None:
@@ -282,6 +298,7 @@ def optChoice(roomID, setInd):
                         socketio.emit('drawPlayerSet', (player, playerSets), room=roomID)
                     else:
                         socketio.emit('addSet', (player, loc, newSet), room=roomID)
+                    socketio.emit('oneHand', (player, handSize), room=roomID)
 
 
 def draw(roomID, game):
@@ -329,6 +346,7 @@ def leaveRoom(roomID):
             return(redirect(url_for('closeRoom', roomID=roomID)))
         socketio.emit('leaveRoom', room=user.player_sid)
         user.in_room = None
+        user.ready = None
         user.order = None
         room.players.remove(user)
         db.session.commit()
@@ -360,6 +378,8 @@ def removePlayer(roomID, username):
             return(redirect(url_for('index')))
         sid = del_user.player_sid
         del_user.in_room = None
+        del_user.ready = None
+        del_user.order = None
         room.players.remove(del_user)
         db.session.commit()
         socketio.emit('leaveRoom', roomID, room=sid)
@@ -384,6 +404,7 @@ def closeRoom(roomID):
     for player in room.players.all():
         player.in_room = None
         player.order = None
+        player.ready = None
     db.session.delete(room)
     db.session.commit()
     flash('room {} is closed'.format(roomID))
@@ -404,8 +425,12 @@ def startGame(roomID):
     if room.owner_id != user.id:
         flash('you are not the owner of room {}'.format(roomID))
         return(redirect(url_for('room', roomID=roomID)))
-    if len(room.players.all()) < 4:
+    players = room.players.all()
+    if len(players) < 4:
         flash('room is not full yet')
+        return(redirect(url_for('room', roomID=roomID)))
+    if not all(player.ready for player in players):
+        flash('not all players ready')
         return(redirect(url_for('room', roomID=roomID)))
     game = MJgame()
     room.set_JSON(game)

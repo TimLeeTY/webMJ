@@ -12,6 +12,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     in_room = db.Column(db.String(4), db.ForeignKey('room.roomID'), nullable=True)
     order = db.Column(db.Integer, nullable=True)
+    ready = db.Column(db.Boolean, nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

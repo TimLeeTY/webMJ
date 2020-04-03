@@ -17,6 +17,8 @@ if app.config['DEBUG']:
     for i in range(len(testUsers['username'])):
         u = User(username=testUsers['username'][i], email=testUsers['email'][i], order=i)
         u.set_password(testUsers['password'][i])
+        u.in_room = 'TEST'
+        u.ready = True
         db.session.add(u)
         r.players.append(u)
     db.session.add(r)

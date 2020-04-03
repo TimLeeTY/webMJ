@@ -6,7 +6,6 @@
     <script> 
     var roomID = '{{ roomID }}';
     </script>
-    <script src=" {{ url_for('static', filename='lobbyScript.js') }}" ></script>
 <div class='mainBlock'>
     <img id="logo-square" src="https://webmj-assets.s3.us-east-2.amazonaws.com/icon.svg">
     <span class='header'> Room <tt>{{ roomID }}</tt></span>
@@ -18,19 +17,22 @@
     {% if players|length == 0 %}
     <div class='username empty'> (empty) </div> 
     {% endif %}
-    {% for playerName in players %}
-     <div class='username'> {{ playerName }} </div>
-        {% if owner %}
-            <a class='remove' href={{ url_for('removePlayer', roomID=roomID, username=playerName) }}> remove</a>
+    {% for player in players %}
+     <div class='username'> {{ player.username }} 
+     <span class='readyCheck' id='ready-{{ player.order }}'>{% if player.ready %} &#10004 {% endif %}</span>
+     </div>
+        {% if user.username == username %}
+            <a class='remove' href={{ url_for('removePlayer', roomID=roomID, username=player.username) }}> remove</a>
         {% endif %} 
     {% endfor %}
-    {% if owner %}
-    <a class='game' id='closeRoom' href={{ url_for('closeRoom', roomID=roomID) }}> close room </a>
-    <a class='game' id='startGame' href={{ url_for('startGame', roomID=roomID) }}> start game </a>
+    {% if user.username == username %}
+    <a class='game' id='closeRoom' href='{{ url_for('closeRoom', roomID=roomID) }}'> close room </a>
+    <a class='game' id='startGame' href='{{ url_for('startGame', roomID=roomID) }}'> start game </a>
     {% else %}
-    <a class='game' id='leaveRoom' href={{ url_for('leaveRoom', roomID=roomID) }}> leave room </a>
-    <a class='game' id='readyGame' href='' > ready </a>
+    <a class='game' id='leaveRoom' href='{{ url_for('leaveRoom', roomID=roomID) }}'> leave room </a>
+    <a class='game' id='readyGame'>{% if user.ready %}unready{% else %}ready{% endif %}</a>
     {% endif %} 
 </div>
 
+    <script src=" {{ url_for('static', filename='lobbyScript.js') }}" ></script>
 {% endblock %}

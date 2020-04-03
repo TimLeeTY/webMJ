@@ -179,11 +179,13 @@ function whoseTurn(player){
 
 function oneHand(player, size){
     var i;
-    for (i=13; i>size; i--){
+    for (i=13; i>=size; i--){
         var tile;
         tile=document.getElementById('hand-'+player+'-'+i);
         tile.style.backgroundImage = "none";
     }
+    tile=document.getElementById('hand-'+player+'-0');
+    tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/b-0-.svg')";
 }
 
 function chooseDiscard(tile){
@@ -310,7 +312,7 @@ function hideWin(){
 }
 
 var socket = io();
-var playerPos = 0
+var playerOrder
 var tileDict = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [3, 1], [3, 2], [3, 3], [3, 4], [4, 1], [4, 2], [4, 3]]
 
 socket.on('initialise', function(players, pos, whoseTurn, order){
@@ -318,7 +320,7 @@ socket.on('initialise', function(players, pos, whoseTurn, order){
     var windList = ['', '', '', ''];
     var playerList = ['', '', '', ''];
     dealer = players[0]
-    playerPos = pos
+    playerOrder = order
     whoseTurn = (whoseTurn - order + 4) %4
     for (i=0; i<4; i++){
         playerList[i] = players[(i+order+ 4)%4];
@@ -336,42 +338,42 @@ socket.on('drawHands', function(handSizes){
 });
 
 socket.on('oneHand', function(player, handSize){
-    player = (player - playerPos + 4) % 4 ;
+    player = (player - playerOrder + 4) % 4 ;
     if (player !== 0){
         oneHand(player, handSize)
     }
 });
 
 socket.on('discardTileDisp', function(newTile, player, loc){
-    player = (player - playerPos + 4) % 4 ;
+    player = (player - playerOrder + 4) % 4 ;
     discardTileDisp(newTile, player, loc);
 });
 
 socket.on('discardTileHand', function(player){
-    player = (player - playerPos + 4) % 4 ;
+    player = (player - playerOrder + 4) % 4 ;
     discardTileHand(player);
 });
 
 socket.on('addSet', function(player, loc, newSet){
-    player = (player - playerPos + 4) % 4 ;
+    player = (player - playerOrder + 4) % 4 ;
     addSet(player, loc, newSet);
     whoseTurn(player);
 });
 
 socket.on('drawDiscards', function(discDict){
     for (var i=0; i<4; i++){
-        drawDiscards(discDict[(i + playerPos) % 4], i);
+        drawDiscards(discDict[(i + playerOrder ) % 4], i);
     }
 });
 
 socket.on('drawSets', function(setDict){
     for (var i=0; i<4; i++){
-        drawSets(setDict[(i+playerPos) % 4], i);
+        drawSets(setDict[(i + playerOrder) % 4], i);
     }
 });
 
 socket.on('drawPlayerSet', function(player, sets){
-    player = (player - playerPos + 4) % 4 ;
+    player = (player -  playerOrder + 4) % 4 ;
     drawSets(sets, player);;
 });
 
@@ -380,7 +382,7 @@ socket.on('playerDraw', function(tile){
 });
 
 socket.on('blindDraw', function(player){
-    player = (player - playerPos + 4) % 4 ;
+    player = (player - playerOrder + 4) % 4 ;
     whoseTurn(player);
     if (player !== 0){
         draw(player)

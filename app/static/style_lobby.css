@@ -34,7 +34,13 @@ div.userName{
     padding-left: 1em;
     margin-bottom: 1em;
     display: inline-block;
-    width:60%;
+    width:70%;
+}
+
+span.readyCheck{
+    float: left;
+    margin-right: 0.5em;
+    color: #5ed53a;
 }
 
 div.empty{

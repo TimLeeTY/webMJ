@@ -4,10 +4,14 @@ import numpy as np
 
 class MJgame():
     def __init__(self, flowers=False, in_dict=None):
+        """
+        Load variables from dictionary object or initialise with new game
+        Variables are exported using the __dict__ method and stored as a
+        JSON object
+        """
         if in_dict is not None:
             self.import_from_json(in_dict)
         else:
-            self.handSize = 13  # Must be 1 mod 3
             self.deck = [i for i in range(34) for j in range(4)]
             if flowers:
                 self.deck += [i+34 for i in range(4) for j in range(2)]
@@ -18,7 +22,6 @@ class MJgame():
             self.sO = [[], [], []]
 
     def import_from_json(self, in_dict):
-        self.handSize = in_dict["handSize"]
         self.deck = in_dict["deck"]
         self.start = in_dict["start"]
         self.turn = in_dict["turn"]
@@ -37,6 +40,10 @@ class MJgame():
         self.sO = in_dict["sO"]
 
     def dealTiles(self):
+        """
+        Initialise game specific variables;
+        called whenever a game is over
+        """
         self.turn = self.start
         self.turnNum = 0
         self.setDict = [[] for i in range(4)]
@@ -48,14 +55,21 @@ class MJgame():
         self.gongBool = False
         self.winBool = False
         shuffle(self.deck)
-        self.deckLoc = 14 + 13*3
-        hands = [self.deck[1+pos*self.handSize:1+(1+pos)*self.handSize]
-                 if pos != self.start else self.deck[:self.handSize+1] for pos in range(4)]
-        hands = [sorted(i) for i in hands]
-        hands[0] = hands[0][1:] + hands[0][0:1]
+        handSize = 13
+        self.deckLoc = handSize*4+1
+        hands = [sorted(self.deck[
+            1+(pos-self.start) % 4*handSize:1+(1+(pos-self.start) % 4)*handSize])
+            if pos != self.start else sorted(self.deck[:handSize+1])
+            for pos in range(4)]
+        hands[self.start] = hands[self.start][1:] + hands[self.start][0:1]
         self.handDict = hands
 
     def addSet(self, player, newSet):
+        """
+        Add a set to the corresponding player;
+        'Gongs' that occur when a player draws is handled separately
+        (hence gongBool and addGong)
+        """
         if self.addGong:
             self.setDict[player].remove(newSet)
             setU, setC = [newSet[0]], [1]
@@ -66,7 +80,8 @@ class MJgame():
         uniq, count = np.unique(self.handDict[player], return_counts=True)
         for i, each in enumerate(setU):
             count[uniq == each] -= setC[i]
-        self.handDict[player] = [int(u) for i, u in enumerate(uniq) for j in range(count[i])]
+        self.handDict[player] = [
+            int(u) for i, u in enumerate(uniq) for j in range(count[i])]
         if not self.gongBool:
             addTile = self.discPile[(self.turn - 1) % 4].pop()
             self.turn = player
@@ -80,9 +95,12 @@ class MJgame():
         return(player, newSet, loc)
 
     def draw(self):
+        """
+        Draw a tile for the current player; not directly called by client
+        so no need to check actionInd/winPlayer is empty
+        """
         player = self.turn
         tile = self.deck[self.deckLoc]
-        print("player {} has drawn".format(player))
         self.deckLoc += 1
         self.handDict[player].append(tile)
         self.winBool = self.checkWin(self.handDict[player])
@@ -102,14 +120,15 @@ class MJgame():
         return(handSizes)
 
     def showHand(self, player):
-        return(self.handDict[player])
+        return(self.handDict[player][-1::-1])
 
     def showDiscards(self):
         return(self.discPile)
 
     def showSets(self, p=None):
         if p is None:
-            return([[tile for s in pSets for tile in s] for pSets in self.setDict])
+            return([[tile for s in pSets for tile in s]
+                    for pSets in self.setDict])
         else:
             return([tile for s in self.setDict[p] for tile in s])
 
@@ -136,7 +155,8 @@ class MJgame():
         if len(self.winPlayer) > 0:
             player = self.winPlayer[0]
             sets = self.setDict[player]
-            fullHand = [tile for eachSet in sets for tile in eachSet] + self.handDict[player]
+            fullHand = [tile for eachSet in sets for tile in eachSet]\
+                + self.handDict[player]
             return(player, discTile, 'win', fullHand)
         elif len(self.actionInd) > 0:
             ind = self.actionInd[0]
@@ -172,7 +192,8 @@ class MJgame():
             else:
                 discTile = self.discTile
             sets = self.setDict[player]
-            fullHand = self.handDict[player] + [tile for eachSet in sets for tile in eachSet]
+            fullHand = self.handDict[player] + \
+                [tile for eachSet in sets for tile in eachSet]
             print('fullHand ', fullHand)
             if player != self.start:
                 self.start = (self.start + 1) % 4

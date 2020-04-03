@@ -310,7 +310,7 @@ div.triangle{
     width: 0;
     height: 0;
     border-top: 1em solid transparent;
-    border-right: 1em solid rgb(150, 150, 150);
+    border-right: 0.8em solid rgb(150, 220, 180);
     border-bottom: 1em solid transparent;
     position: absolute;
     top: 15%;

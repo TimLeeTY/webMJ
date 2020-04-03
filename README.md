@@ -12,9 +12,15 @@ WebMJ uses a `Python-Flask` backend with asynchronous websocket communication vi
 - `NumPy`
 
 ## TODO:
+- check and fix 'addGong'
 - Handle win events:
   - fix javascript to properly show order after first game
   - (currently `whoseTurn` and `addSets` are still not working properly
   - (calculate points for winner)
   - (handle multiple winning combinations)
 - Add indicators for actions taken
+- Reverse sorting on hand
+- Logic to handle running out of tiles
+- Fix labels
+- Add flowers
+

@@ -4,6 +4,7 @@
 <link rel='stylesheet' type='text/css' href='{{ url_for('static', filename='style_home.css') }}'/>
 
 <div class='mainBlock'>
+    <img id="logo-square" src="https://webmj-assets.s3.us-east-2.amazonaws.com/icon.svg">
     <span class='header'>Hi, {{ current_user.username }}</span>
     {% if inRoom != None %}
     <span class='optText'> You are currently in room <a class='roomLink' href='/room/{{ inRoom }}'> {{ inRoom }} </a> </span>

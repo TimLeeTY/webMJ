@@ -321,7 +321,7 @@ socket.on('initialise', function(players, pos, whoseTurn, order){
     playerPos = pos
     whoseTurn = (whoseTurn - order + 4) %4
     for (i=0; i<4; i++){
-        playerList[i] = players[(i-order+ 4)%4];
+        playerList[i] = players[(i+order+ 4)%4];
         windList[i] = wind[(i+pos)%4];
     }
     writeNames(playerList, windList, dealer, whoseTurn)

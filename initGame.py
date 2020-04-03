@@ -62,7 +62,7 @@ class MJgame():
         else:
             setU, setC = np.unique(newSet, return_counts=True)
         if self.gongBool:
-            setC += 1
+            setC[0] += 1
         uniq, count = np.unique(self.handDict[player], return_counts=True)
         for i, each in enumerate(setU):
             count[uniq == each] -= setC[i]

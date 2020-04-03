@@ -34,9 +34,40 @@ a.menuLink{
     margin-right:1em;
 }
 
+#logo-square{
+    height: 5em;
+    background-color: white;
+    margin: auto;
+    margin-top: -5em;
+    margin-bottom: 1em;
+    display: block;
+}
+
 
 a.loginLink{
     float:right;
+}
+
+a.gitHub-link{
+    font-size: 15px;
+    background-color: a7d5ee;
+    color: FFFFFF;
+    height: 2em;
+    width: fit-content;
+    padding: 0.5em 1em 0em 1em;
+    border-radius: 5px 5px 0px 0px;
+    float: right;
+    line-height: 1.5em;
+    margin-right: 1em;
+    position: fixed;
+    bottom: 0;
+    right: 1em;
+}
+
+#gitHubMark{
+    height: 80%;
+    float: left;
+    margin-right: 0.5em;
 }
 
 ul.flashMes{

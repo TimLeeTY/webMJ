@@ -1,6 +1,7 @@
 <html>
     <head>
       <title>webMJ</title>
+      <link rel='icon' href="https://webmj-assets.s3.us-east-2.amazonaws.com/icon.svg ">
       <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='style_default.css') }}"/>
     </head>
     <body>
@@ -15,6 +16,10 @@
             <a class='menuLink' id='leaveRoom' href="{{ url_for('leaveRoom', roomID=roomID) }}">Leave Room</a>
             {% endif %}
         </div>
+        <a class='gitHub-link' href="https://github.com/TimLeeTY/webMJ" target="_blank">
+            <img id='gitHubMark' src="https://webmj-assets.s3.us-east-2.amazonaws.com/GitHub-Mark-Light-64px.png">
+            Find me on GitHub
+        </a>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul class='flashMes'>

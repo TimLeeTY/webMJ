@@ -1,4 +1,5 @@
-from flask import render_template, flash, redirect, url_for, request, send_from_directory
+from flask import render_template, flash, redirect, url_for, request, \
+    send_from_directory
 from app import app, db, socketio
 from app.forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
@@ -104,8 +105,10 @@ def room(roomID):
         return(redirect(url_for('game', roomID=roomID)))
     players_q = room.players.all()
     try:
-        players = [player for player in players_q if player.id != room.owner_id]
-        username = [player.username for player in players_q if player.id == room.owner_id][0]
+        players = [player for player in players_q
+                   if player.id != room.owner_id]
+        username = [player.username for player in players_q
+                    if player.id == room.owner_id][0]
     except IndexError:
         flash('room {} does not exist'.format(roomID))
         return(redirect(url_for('index')))
@@ -295,7 +298,8 @@ def optChoice(roomID, setInd):
                         draw(roomID, game)
                     if loc is None:
                         playerSets = game.showSets(p=userInd)
-                        socketio.emit('drawPlayerSet', (player, playerSets), room=roomID)
+                        socketio.emit('drawPlayerSet', (player, playerSets),
+                                      room=roomID)
                     else:
                         socketio.emit('addSet', (player, loc, newSet), room=roomID)
                     socketio.emit('oneHand', (player, handSize), room=roomID)
@@ -306,6 +310,9 @@ def draw(roomID, game):
     room = Room.query.filter_by(roomID=roomID).first()
     room.set_JSON(game)
     db.session.commit()
+    if tile is None and player is None:
+        socketio.emit('gameDraw', room=roomID)
+        return
     players = room.players.all()
     for i in players:
         if i.order == player:
@@ -314,7 +321,8 @@ def draw(roomID, game):
     socketio.emit('blindDraw', player, room=roomID)
     if winBool:
         sets = game.setDict[player]
-        fullHand = [tile for eachSet in sets for tile in eachSet] + game.handDict[player][:-1]
+        fullHand = [tile for eachSet in sets for tile in eachSet]\
+            + game.handDict[player][:-1]
         socketio.emit('showWin', (tile, fullHand), room=playerSid)
     if gongBool:
         sT = ['gong']
@@ -341,10 +349,10 @@ def leaveRoom(roomID):
         flash('you are not in room {}'.format(roomID))
         return(redirect(url_for('index')))
     try:
-        room.JSON_string = None
         if room.owner_id == user.id:
             return(redirect(url_for('closeRoom', roomID=roomID)))
         socketio.emit('leaveRoom', room=user.player_sid)
+        room.JSON_string = None
         user.in_room = None
         user.ready = None
         user.order = None
@@ -380,6 +388,7 @@ def removePlayer(roomID, username):
         del_user.in_room = None
         del_user.ready = None
         del_user.order = None
+        room.JSON_string = None
         room.players.remove(del_user)
         db.session.commit()
         socketio.emit('leaveRoom', roomID, room=sid)
@@ -426,6 +435,8 @@ def startGame(roomID):
         flash('you are not the owner of room {}'.format(roomID))
         return(redirect(url_for('room', roomID=roomID)))
     players = room.players.all()
+    if room.JSON_string is not None:
+        return(redirect(url_for('game', roomID=roomID)))
     if len(players) < 4:
         flash('room is not full yet')
         return(redirect(url_for('room', roomID=roomID)))

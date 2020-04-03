@@ -3,6 +3,8 @@
 A simple html based way to play Mahjong online!
 WebMJ uses a `Python-Flask` backend with asynchronous websocket communication via `Socket.IO`.
 
+Deployed on [Heroku](https://web-mj.herokuapp.com)!
+
 ## Requirements:
 - `Python 3.x`
 - `Flask`
@@ -13,11 +15,9 @@ WebMJ uses a `Python-Flask` backend with asynchronous websocket communication vi
 
 ## TODO:
 - Handle win events:
-  - (currently `whoseTurn` and `addSets` are still not working properly
+  - ~~(currently `whoseTurn` and `addSets` are still not working properly~~ (fixed?)
   - (calculate points for winner)
-  - (handle multiple winning combinations)
 - Add indicators for actions taken
-- Reverse sorting on hand
-- Logic to handle running out of tiles
+- Logic to handle running out of tiles *(added, needs testing)*
 - Add flowers
 

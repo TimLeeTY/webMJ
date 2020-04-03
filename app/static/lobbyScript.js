@@ -8,11 +8,6 @@ function playerReady(playerOrder, readyBool){
     }
 }
 
-function playerUnready(playerOrder){
-    var readyID = document.getElementById('ready-'+playerOrder)
-    readyID.innerHTML = ''
-}
-
 function ready(){
     socket.emit('lobby_ready', roomID, true);
     var readyBtn = document.getElementById('readyGame')  

@@ -243,9 +243,6 @@ function showWin(tile, hand){
 }
 
 function playerWin(player, tile, hand){
-    sTile = tileDict[tile]
-    console.log(sTile)
-    console.log(tileDict[sTile])
     var center = document.getElementById('centerWin');
     var choice = document.getElementById('win0');
     choice.style.display = 'inline-block'
@@ -264,6 +261,17 @@ function playerWin(player, tile, hand){
     hideBtn.style.display = 'inline-block';
     var title = document.getElementById('playerWinText');
     title.textContent = player+' wins!';
+    center.style.display= "inline-block";
+}
+
+function gameDraw(){
+    var center = document.getElementById('centerWin');
+    var choice5 = document.getElementById('win5');
+    choice5.style.display = 'inline-block';
+    var hideBtn = document.getElementById('hideWinButton');
+    hideBtn.style.display = 'inline-block';
+    var title = document.getElementById('playerWinText');
+    title.textContent = 'game ends in draw!';
     center.style.display= "inline-block";
 }
 

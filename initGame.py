@@ -96,9 +96,15 @@ class MJgame():
 
     def draw(self):
         """
-        Draw a tile for the current player; not directly called by client
-        so no need to check actionInd/winPlayer is empty
+        Draw a tile for the current player;
+        no verification as not directly called by client
+        Returns values needed to display drawn tile along with
+        possibility to perform 'gong' action
         """
+        if self.deckLoc == len(self.deck):
+            self.start = (self.start+1) % 4
+            self.dealTiles()
+            return(None, None, False, False)
         player = self.turn
         tile = self.deck[self.deckLoc]
         self.deckLoc += 1
@@ -133,6 +139,10 @@ class MJgame():
             return([tile for s in self.setDict[p] for tile in s])
 
     def discard(self, tileInd, player):
+        """
+        Discard tile for player by index of tile; verifies turn and empty actionInd
+        Returns values needed to display discarded tile
+        """
         if not (self.turn == player and len(self.actionInd) == 0 and
                 len(self.handDict[player]) % 3 == 2):
             raise ValueError('not this players turn')
@@ -148,6 +158,7 @@ class MJgame():
         return(self.decideOpt(tile))
 
     def action(self):
+        """Returns the next action to be taken based on game state """
         if self.gongBool:
             discTile = self.sO[0][0]
         else:
@@ -168,6 +179,11 @@ class MJgame():
         return(player, discTile, len(self.discPile[player]) - 1, [])
 
     def act(self, player, setInd):
+        """
+        Attempt to perform action provided by player;
+        set index is based on choices provided by action() above
+        Returns values needed to display chosen action
+        """
         ind = self.actionInd[0]
         playerAction = (self.turn + ind) % 4
         if player == playerAction:
@@ -184,6 +200,12 @@ class MJgame():
             raise ValueError('not this players turn')
 
     def playerWin(self, player, winInd):
+        """
+        Handle 'win' action provided by player;
+        verifies player is in position to win and handles choice via winInd:
+        0: ignore win
+        1: win
+        """
         if player != self.winPlayer[0]:
             raise ValueError('player not eligible')
         elif winInd > 0:
@@ -206,6 +228,11 @@ class MJgame():
             return(None)
 
     def decideOpt(self, tile):
+        """
+        After each discard, decide the available options to rest of the players
+        result is passed on to action which decides the order in which these
+        actions will be handled
+        """
         player = self.turn
         s, v = tile // 9, tile % 9
         sT = [[], [], []]
@@ -242,7 +269,7 @@ class MJgame():
         return(self.action())
 
     def threeCheck(self, a):
-        """ checks if hand can be divided evenly into sets by recursion"""
+        """Checks if hand can be divided evenly into sets by recursion """
         if len(a) == 0:
             return(True)
         a = sorted(a)
@@ -261,6 +288,7 @@ class MJgame():
         return(self.checkWin(np.append(self.handDict[player], self.discTile)))
 
     def checkWin(self, hand):
+        """Checks if input is a winning hand"""
         if len(hand) % 3 != 2:
             raise ValueError('hand wrong size')
         uniq, count = np.unique(hand, return_counts=True)

@@ -208,7 +208,6 @@ def discardTile(tile, roomID):
                 players = room.players.all()
                 userInd = user.order
                 game = MJgame(in_dict=room.load_JSON())
-                print(tile)
                 try:
                     player, tile, sT, sO = game.discard(tile, userInd)
                 except ValueError:

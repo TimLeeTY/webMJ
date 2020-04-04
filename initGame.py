@@ -84,8 +84,8 @@ class MJgame():
         uniq, count = np.unique(self.handDict[player], return_counts=True)
         for i, each in enumerate(setU):
             count[uniq == each] -= setC[i]
-        self.handDict[player] = [
-            int(u) for i, u in enumerate(uniq) for j in range(count[i])]
+        self.handDict[player] = sorted(
+            [int(u) for i, u in enumerate(uniq) for j in range(count[i])], reverse=True)
         if not self.gongBool:
             addTile = self.discPile[(self.turn - 1) % 4].pop()
             self.turn = player

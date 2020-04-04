@@ -49,7 +49,7 @@ div.mainGame{
     width: 45em;
     height: 45em;
     margin: auto;
-    margin-top: 4em;
+    margin-top: 6em;
     background-color: white;
     border: 1px grey solid;
     border-radius: 4px;
@@ -63,7 +63,7 @@ div.username{
     background-color:white;
     text-align: center;
     white-space: pre-wrap;
-
+    pointer-events:none;
 }
 
 
@@ -72,6 +72,7 @@ div.tiles{
     display:inline-block;
     width: 82%;
     height:6%;
+    pointer-events: none;
 }
 
 div.choices{
@@ -103,6 +104,7 @@ div.discards{
     display:inline-block;
     width: 46%;
     height: 22%;
+    pointer-events:none;
 }
 
 div.tile{
@@ -112,6 +114,7 @@ div.tile{
     height: 100%;
     /* background-image: url('/media/2-1-.svg'); */
     background-repeat: no-repeat;
+    visibility:hidden;
 }
 
 div.tilehand{
@@ -122,6 +125,7 @@ div.tilehand{
     height: 100%;
     /* background-image: url('/media/b-0-.svg'); */
     background-repeat: no-repeat;
+    visibility:hidden;
 }
 
 div.tilediscard {
@@ -132,6 +136,8 @@ div.tilediscard {
     /*background-image: url('/media/4-1-.svg'); */
     background-repeat: no-repeat;
     transform:rotate(180deg);
+    visibility:hidden;
+    pointer-events:fill;
 }
 
 div.tilechoice{
@@ -152,6 +158,7 @@ div.tilewin{
     background-repeat: no-repeat;
     /* background-image: url('/media/4-1-.svg'); */
 }
+
 
 div.choicetext{
     float:left;
@@ -328,5 +335,90 @@ div.usernameText{
     top:0px;
     height: 100%;
     width: 100%;
+}
 
+div.tooltip {
+    position: relative;
+    pointer-events: fill;
+}
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 6em;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  font-size: 16px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -3em;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+div.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip .fliptooltiptext {
+  visibility: hidden;
+  width: 6em;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  font-size: 16px;
+  transform: rotate(180deg);
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -3em;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+div.tooltip .fliptooltiptext::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #555  transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+div.tooltip:hover .fliptooltiptext {
+  visibility: visible;
+  opacity: 1;
 }

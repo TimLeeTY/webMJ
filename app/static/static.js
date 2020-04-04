@@ -70,10 +70,12 @@ function drawHands(handSizes){
         for (t=0; t<handSizes[hand]; t++){
             tile=document.getElementById('hand-'+(hand+1)+'-'+(t+1)%14);
             tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/b-0-.svg')";
+            tile.style.visibility = "visible"
         }
         for (t=handSizes[hand]+1; t<14; t++){
             tile=document.getElementById('hand-'+(hand+1)+'-'+t);
             tile.style.backgroundImage = "none";
+            tile.style.visibility = "hidden"
         }
     }
 }
@@ -84,15 +86,13 @@ function drawDiscards(tiles, player){
             var tile;
             tile=document.getElementById('discard-'+player+'-'+t);
             tile.style.backgroundImage = "none"
+            tile.style.visibility = "hidden"
         }
     }
     else{
         for (var t=0; t<tiles.length; t++){
-            var tile;
-            var s=tileDict[tiles[t]][0];
-            var v=tileDict[tiles[t]][1];
-            tile=document.getElementById('discard-'+player+'-'+t);
-            tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+s+"-"+v+"-.svg')"
+            var tile=document.getElementById('discard-'+player+'-'+t);
+            drawTile(tile, tiles[t])
         }
     }
 }
@@ -103,15 +103,13 @@ function drawSets(tiles, player){
             var tile;
             tile=document.getElementById('set-'+player+'-'+t);
             tile.style.backgroundImage = "none"
+            tile.style.visibility = "hidden"
         }
     }
     else{
         for (t=0; t<tiles.length; t++){
-            var tile;
-            var s=tileDict[tiles[t]][0];
-            var v=tileDict[tiles[t]][1];
-            tile=document.getElementById('set-'+player+'-'+t);
-            tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+s+"-"+v+"-.svg')"
+            var tile=document.getElementById('set-'+player+'-'+t);
+            drawTile(tile, tiles[t])
         }
     }
 }
@@ -119,46 +117,43 @@ function drawSets(tiles, player){
 function showPlayerHand(tiles){
     var tl = tiles.length
     for (var t=0; (t<tl); t++){(function(){
-        var sTile = tileDict[tiles[t]]
         var tile=document.getElementById('hand-0-'+(t+1)%14);
-        tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+sTile[0]+"-"+sTile[1]+"-.svg')"
+        drawTile(tile, tiles[t])
     })() }
     for (var t=tl; t<=13; t++){
         document.getElementById('hand-0-'+(t+1)%14).style.backgroundImage = "none"
+        document.getElementById('hand-0-'+(t+1)%14).style.visibility = "hidden"
     }
 }
 function playerDraw(newTile){
-    newTile = tileDict[newTile]
-    var tile;
-    tile=document.getElementById('hand-0-0');
-    tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+newTile[0]+"-"+newTile[1]+"-.svg')"
+    var tile=document.getElementById('hand-0-0');
+    drawTile(tile, newTile)
 }
 
 function draw(player){
     var tile;
     tile=document.getElementById('hand-'+player+'-0');
     tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/b-0-.svg')";
+    tile.style.visibility = "visible"
 }
 
 function discardTileDisp(newTile, player, loc){
-    newTile = tileDict[newTile]
     var discTile
     discTile=document.getElementById('discard-'+player+'-'+loc);
-    discTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+newTile[0]+"-"+newTile[1]+"-.svg')";
+    drawTile(discTile, newTile)
 }
 
 function discardTileHand(player){
     var tile;
     tile=document.getElementById('hand-'+player+'-0');
     tile.style.backgroundImage = "none";
+    tile.style.visibility = "hidden"
 }
 
 function addSet(player, loc, newSet){
     for (var i=0; i<newSet.length; i++){
-        var setTile
-        newTile = tileDict[newSet[i]]
-        setTile=document.getElementById('set-'+player+'-'+(loc+i));
-        setTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+newTile[0]+"-"+newTile[1]+"-.svg')";
+        var setTile = document.getElementById('set-'+player+'-'+(loc+i));
+        drawTile(setTile, newSet[i])
     }
 }
 
@@ -183,9 +178,11 @@ function oneHand(player, size){
         var tile;
         tile=document.getElementById('hand-'+player+'-'+i);
         tile.style.backgroundImage = "none";
+        tile.style.visibility = "hidden"
     }
     tile=document.getElementById('hand-'+player+'-0');
     tile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/b-0-.svg')";
+    tile.style.visibility = "visible"
 }
 
 function chooseDiscard(tile){
@@ -194,20 +191,17 @@ function chooseDiscard(tile){
 }
 
 function showChoices(tile, types, sets){
-    tile = tileDict[tile]
     var center = document.getElementById('center');
     for (var i=0; i<sets.length; i++){
         (function(){
             var choice = document.getElementById('choice'+i);
             choice.style.display = 'inline-block'
             var newTile = document.getElementById('choice'+i+'-0');
-            newTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+tile[0]+"-"+tile[1]+"-.svg";
+            drawTile(newTile, tile)
             for (var j=0; j<sets[i].length; j++){
                 (function(){
-                    setT = tileDict[sets[i][j]]
-                    var setTile
-                    setTile = document.getElementById('choice'+i+'-'+(j+1));
-                    setTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+setT[0]+"-"+setT[1]+"-.svg";
+                    var setTile = document.getElementById('choice'+i+'-'+(j+1));
+                    drawTile(setTile, sets[i][j])
                 })()}
         var btn = document.getElementById('button'+i);
         btn.textContent = types[i];
@@ -218,20 +212,17 @@ function showChoices(tile, types, sets){
 }
 
 function showWin(tile, hand){
-    tile = tileDict[tile]
     var center = document.getElementById('centerWin');
     var winButton = document.getElementById('WinButton0');
     winButton.style.visibility = 'visible';
     var choice = document.getElementById('win0');
     choice.style.display = 'inline-block'
     var newTile = document.getElementById('win0-0');
-    newTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+tile[0]+"-"+tile[1]+"-.svg";
+    drawTile(newTile, tile)
     for (var j=0; j<hand.length; j++){
         (function(){
-            setT = tileDict[hand[j]]
-            var setTile
-            setTile = document.getElementById('win0-'+(j+1));
-            setTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+setT[0]+"-"+setT[1]+"-.svg";
+            var setTile = document.getElementById('win0-'+(j+1));
+            drawTile(setTile, hand[j])
             })()}
     var choice5 = document.getElementById('win5');
     var cancelBtn = document.getElementById('ignoreWinButton');
@@ -247,13 +238,12 @@ function playerWin(player, tile, hand){
     var choice = document.getElementById('win0');
     choice.style.display = 'inline-block'
     var newTile = document.getElementById('win0-0');
-    newTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+sTile[0]+"-"+sTile[1]+"-.svg";
+    drawTile(newTile, tile)
     for (var j=0; j<hand.length; j++){
         (function(){
             var setTile
-            var tile = tileDict[hand[j]]
             setTile = document.getElementById('win0-'+(j+1));
-            setTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+tile[0]+"-"+tile[1]+"-.svg";
+            drawTile(setTile, hand[j])
         })()};
     var choice5 = document.getElementById('win5');
     choice5.style.display = 'inline-block';
@@ -286,7 +276,7 @@ function hideChoices(){
                 (function(){
                     var setTile;
                     setTile = document.getElementById('choice'+i+'-'+j);
-                    setTile.style.backgroundImage = "none";
+                    undrawTile(setTile);
                 })()}
         })() }
     var choice5 = document.getElementById('choice5');
@@ -306,7 +296,7 @@ function hideWin(){
                 (function(){
                     var setTile;
                     setTile = document.getElementById('win'+i+'-'+j);
-                    setTile.style.backgroundImage = "none";
+                    undrawTile(setTile);
                 })()}
         })() }
     var title = document.getElementById('playerWinText');
@@ -319,9 +309,29 @@ function hideWin(){
     hideBtn.style.display = 'none';
 }
 
+function drawTile(tileEle, tileInd){
+    var tileVal = tileDict[tileInd];
+    var label = tileEle.childNodes[1];
+    tileEle.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+tileVal[0]+"-"+tileVal[1]+"-.svg";;
+    tileEle.style.visibility = "visible";
+    if (tileVal[0] < 3){
+        label.textContent = tileVal[1] + ' ' + suitLabel[tileVal[0]];
+    }
+    else {
+        label.textContent = honorLabel[tileVal[0]-3][tileVal[1]-1];
+    };
+}
+
+function undrawTile(tileEle){
+    tileEle.style.backgroundImage = "none";
+    tileEle.style.visibility = "hidden";
+}
+
 var socket = io();
 var playerOrder
 var tileDict = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [3, 1], [3, 2], [3, 3], [3, 4], [4, 1], [4, 2], [4, 3]]
+var suitLabel = ['Dots', 'Bamboo', 'Number']
+var honorLabel = [['East', 'South', 'West', 'North'], ['Red', 'Green', 'White']]
 
 socket.on('initialise', function(players, pos, whoseTurn, order){
     var wind = ['east', 'south', 'west', 'north'];

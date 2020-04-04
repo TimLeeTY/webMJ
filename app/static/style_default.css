@@ -12,11 +12,13 @@ div.menuBar{
     height: 2em;
     border-bottom: grey solid 1px;
     padding-top: 1%;
-    padding-left: 2%;
-    padding-right: 2%;
     background-color: rgb(240, 240, 240);
     color: rgb(40, 40, 40);
     font-size: 20px;
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    z-index: 1;
 }
 
 a.menuLink{
@@ -30,9 +32,9 @@ a.menuLink{
 }
 
 #logo{
-    height:60%;
-    float:left;
-    margin-right:1em;
+    height: 60%;
+    float: left;
+    margin: 0em 1em;
 }
 
 #logo-square{
@@ -47,6 +49,7 @@ a.menuLink{
 
 a.loginLink{
     float:right;
+    margin-right: 1em;
 }
 
 a.gitHub-link{
@@ -87,7 +90,7 @@ ul.flashMes{
 div.mainBlock{
     width:fit-content;
     margin:auto;
-    margin-top: 4em;
+    margin-top: 8em;
     color: rgb(80, 80, 80);
     border: 0.5px rgb(200, 200, 200) solid;
     padding: 2em;

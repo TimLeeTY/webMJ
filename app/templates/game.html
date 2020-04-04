@@ -10,14 +10,18 @@
         </div>
         {% for i in range(5) %}
         <div class='choices' id='choice{{ i }}'>
-            <div class='tilechoice' id='choice{{ i }}-0'>
+            <div class='tilechoice tooltip' id='choice{{ i }}-0'>
+            <span class="tooltiptext"> </span>
             </div>
             <div class='choicetext'> + </div>
-            <div class='tilechoice' id='choice{{ i }}-1'>
+            <div class='tilechoice tooltip' id='choice{{ i }}-1'>
+            <span class="tooltiptext"> </span>
             </div>
-            <div class='tilechoice' id='choice{{ i }}-2'>
+            <div class='tilechoice tooltip' id='choice{{ i }}-2'>
+            <span class="tooltiptext"> </span>
             </div>
-            <div class='tilechoice' id='choice{{ i }}-3'>
+            <div class='tilechoice tooltip' id='choice{{ i }}-3'>
+            <span class="tooltiptext"> </span>
             </div>
             <button class='buttonChoice' id='button{{ i }}'></button>
         </div>
@@ -31,11 +35,13 @@
         {% for i in range(5) %}
         <div class='wins' id='win{{ i }}'>
             <button class='buttonWin' id='WinButton{{ i }}'>win!</button>
-            <div class='tilewin' id='win{{ i }}-0'>
+            <div class='tilewin tooltip' id='win{{ i }}-0'>
+            <span class="tooltiptext"> </span>
             </div>
             <div class='winAdd'> + </div>
             {% for j in range(17) %}
-            <div class='tilewin' id='win{{ i }}-{{ j+1 }}'>
+            <div class='tilewin tooltip' id='win{{ i }}-{{ j+1 }}'>
+            <span class="tooltiptext"> </span>
             </div>
             {% endfor %}
         </div>
@@ -56,8 +62,14 @@
     {% for i in range(4) %}
     <div class = "{{ tileClass[i] }}" id="{{ tileLabel[i] }}{{ player }}">
         {% for flower in range(tileLen[i]) %}
+        {% if player == 0 or i != 2 %}
+        <div id="{{ tileLabel[i] }}-{{ player }}-{{ flower }}" class="{{ tileSubClass[i] }} tooltip">
+            <span class="{% if player==2 %} fliptooltiptext {% else %} tooltiptext {% endif %}"> </span>
+        </div>
+        {% else %}
         <div id="{{ tileLabel[i] }}-{{ player }}-{{ flower }}" class="{{ tileSubClass[i] }}">
         </div>
+        {% endif %}
         {% endfor %}
     </div>
     {% endfor %}

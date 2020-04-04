@@ -61,7 +61,7 @@ class MJgame():
             1+(pos-self.start) % 4*handSize:1+(1+(pos-self.start) % 4)*handSize])
             if pos != self.start else sorted(self.deck[:handSize+1])
             for pos in range(4)]
-        hands[self.start] = hands[self.start][1:] + hands[self.start][0:1]
+        hands[self.start] = hands[self.start][-1:] + hands[self.start][:-1]
         self.handDict = hands
 
     def addSet(self, player, newSet):
@@ -147,7 +147,7 @@ class MJgame():
                 len(self.handDict[player]) % 3 == 2):
             raise ValueError('not this players turn')
         self.gongBool, self.winBool, self.addGong = False, False, False
-        tile = self.handDict[player][tileInd]
+        tile = self.handDict[player][-1::-1][tileInd]
         self.discTile = tile
         self.discPile[player].append(tile)
         uniq, count = np.unique(self.handDict[player], return_counts=True)

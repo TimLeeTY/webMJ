@@ -48,7 +48,7 @@ function setInitial(){
 
 function writeNames(players, wind, dealer, whoseTurn){
     for (var i=0; i < 4; i++){
-        var username = '<b>'+players[i]+'</b>'+'\n'+wind[i];
+        var username = '<b>'+players[i].replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;')+'</b>'+'\n'+wind[i];
         if (i == whoseTurn){
             document.getElementById('tri-left-'+i).style.display = 'inline-block';
             document.getElementById('tri-right-'+i).style.display = 'inline-block';
@@ -210,7 +210,7 @@ function showChoices(tile, types, sets){
                     setTile.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+setT[0]+"-"+setT[1]+"-.svg";
                 })()}
         var btn = document.getElementById('button'+i);
-        btn.innerHTML = types[i];
+        btn.textContent = types[i];
         })() }
     var choice5 = document.getElementById('choice5');
     choice5.style.display = 'inline-block'

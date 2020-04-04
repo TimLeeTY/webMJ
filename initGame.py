@@ -57,11 +57,15 @@ class MJgame():
         shuffle(self.deck)
         handSize = 13
         self.deckLoc = handSize*4+1
-        hands = [sorted(self.deck[
-            1+(pos-self.start) % 4*handSize:1+(1+(pos-self.start) % 4)*handSize])
-            if pos != self.start else sorted(self.deck[:handSize+1])
-            for pos in range(4)]
-        hands[self.start] = hands[self.start][-1:] + hands[self.start][:-1]
+        hands = []
+        for pos in range(4):
+            if pos == self.start:
+                hands.append(sorted(self.deck[:handSize+1], reverse=True))
+            else:
+                relPos = (pos - self.start) % 4
+                hands.append(sorted(
+                    self.deck[1+relPos*handSize:1+(1+relPos)*handSize], reverse=True))
+        hands[self.start] = hands[self.start][1:] + hands[self.start][0:1]
         self.handDict = hands
 
     def addSet(self, player, newSet):
@@ -126,7 +130,7 @@ class MJgame():
         return(handSizes)
 
     def showHand(self, player):
-        return(self.handDict[player][-1::-1])
+        return(self.handDict[player])
 
     def showDiscards(self):
         return(self.discPile)
@@ -147,13 +151,11 @@ class MJgame():
                 len(self.handDict[player]) % 3 == 2):
             raise ValueError('not this players turn')
         self.gongBool, self.winBool, self.addGong = False, False, False
-        tile = self.handDict[player][-1::-1][tileInd]
+        tile = self.handDict[player][tileInd]
         self.discTile = tile
         self.discPile[player].append(tile)
-        uniq, count = np.unique(self.handDict[player], return_counts=True)
-        count[uniq == tile] -= 1
-        self.handDict[player] = sorted(
-            [int(u) for i, u in enumerate(uniq) for j in range(count[i])])
+        self.handDict[player].remove(tile)
+        self.handDict[player].sort(reverse=True)
         self.turn = (self.turn + 1) % 4
         return(self.decideOpt(tile))
 

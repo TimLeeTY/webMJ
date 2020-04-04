@@ -1,5 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, \
-    send_from_directory
+from flask import render_template, flash, redirect, url_for, request
 from app import app, db, socketio
 from app.forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
@@ -9,11 +8,6 @@ from werkzeug.urls import url_parse
 from random import choices
 from string import ascii_uppercase
 from initGame import MJgame
-
-
-@app.route('/media/<path:filename>')
-def media(filename):
-    return send_from_directory('media', filename)
 
 
 @app.route('/')
@@ -214,6 +208,7 @@ def discardTile(tile, roomID):
                 players = room.players.all()
                 userInd = user.order
                 game = MJgame(in_dict=room.load_JSON())
+                print(tile)
                 try:
                     player, tile, sT, sO = game.discard(tile, userInd)
                 except ValueError:
@@ -247,7 +242,10 @@ def winChoice(roomID, winInd):
                 players = room.players.all()
                 userInd = user.order
                 game = MJgame(in_dict=room.load_JSON())
-                player, tile, sT, sO = game.playerWin(userInd, winInd)
+                try:
+                    player, tile, sT, sO = game.playerWin(userInd, winInd)
+                except(ValueError, IndexError):
+                    return
                 room.set_JSON(game)
                 db.session.commit()
                 for i in players:
@@ -277,7 +275,10 @@ def optChoice(roomID, setInd):
                 players = room.players.all()
                 userInd = user.order
                 game = MJgame(in_dict=room.load_JSON())
-                player, tile, sT, sO = game.act(userInd, setInd)
+                try:
+                    player, tile, sT, sO = game.act(userInd, setInd)
+                except(ValueError, IndexError):
+                    return
                 room.set_JSON(game)
                 db.session.commit()
                 if setInd == 0 and len(sO) == 0:

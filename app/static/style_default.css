@@ -5,6 +5,7 @@ body{
     font-family: Helvetica Neue;
     font-weight: 400;
     margin: 0px;
+    overflow-x: hidden; 
 }
 
 div.menuBar{

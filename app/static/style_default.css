@@ -18,7 +18,7 @@ div.menuBar{
     position: fixed;
     top: 0px;
     width: 100%;
-    z-index: 1;
+    z-index: 100;
 }
 
 a.menuLink{
@@ -78,7 +78,7 @@ a.gitHub-link{
 ul.flashMes{
     width: 90%;
     margin: auto;
-    margin-top: 1em;
+    margin-top: 4em;
     padding: 1em;
     padding-left: 2em;
     background-color: rgb(235, 235, 255);
@@ -90,12 +90,12 @@ ul.flashMes{
 div.mainBlock{
     width:fit-content;
     margin:auto;
-    margin-top: 8em;
+    margin-top: 6em;
     color: rgb(80, 80, 80);
     border: 0.5px rgb(200, 200, 200) solid;
     padding: 2em;
     padding-left: 4em;
     padding-right: 4em;
-    border-radius: 4px
+    border-radius: 4px;
 }
 

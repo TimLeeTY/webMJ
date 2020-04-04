@@ -84,6 +84,22 @@ div.choices{
     margin-left: 10%;
 }
 
+#choice0{
+    z-index:10;
+}
+#choice1{
+    z-index:9;
+}
+#choice2{
+    z-index:8;
+}
+#choice3{
+    z-index:7;
+}
+#choice4{
+    z-index:6;
+}
+
 div.wins{
     position: relative;
     display:none;

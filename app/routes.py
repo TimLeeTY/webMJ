@@ -258,6 +258,7 @@ def winChoice(roomID, winInd):
                         playerSid = i.player_sid
                         playerName = i.username
                 if winInd > 0 and type(sT) == dict:
+                    print(type(sT))
                     socketio.emit('playerWin', (playerName, tile, sO, sT), room=roomID)
                 elif sT == 'win':
                     socketio.emit('showWin', (tile, sO), room=playerSid)

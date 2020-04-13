@@ -15,8 +15,8 @@ Deployed on [Heroku](https://web-mj.herokuapp.com)!
 
 ## TODO:
 - Handle win events:
-  - ~~(currently `whoseTurn` and `addSets` are still not working properly~~ (fixed?)
-  - (calculate points for winner)
+  - ~~(calculate points for winner)~~
+  - Show winning points on client side
 - Add indicators for actions taken
 - Logic to handle running out of tiles *(added, needs testing)*
 - Add flowers

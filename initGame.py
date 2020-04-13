@@ -38,6 +38,7 @@ class MJgame():
         self.winBool = in_dict["winBool"]
         self.deckLoc = in_dict["deckLoc"]
         self.handDict = in_dict["handDict"]
+        self.wind = in_dict["wind"]
         self.sT = in_dict["sT"]
         self.sO = in_dict["sO"]
 
@@ -223,7 +224,7 @@ class MJgame():
                 maxPoints['Self-Pick'] = 1
             else:
                 discTile = self.discTile
-            fullHand.remove(discTile)
+                fullHand.remove(discTile)
             if player != self.start:
                 if self.start == 3:
                     self.wind = (self.wind + 1) % 4
@@ -326,12 +327,13 @@ class MJgame():
             if c >= 2:
                 # Choose pair and check for sets
                 count[ind] -= 2
-                testArr = [u for i, u in enumerate(uniq) for j in range(count[i])]
+                testArr = [int(u) for i, u in enumerate(uniq)
+                           for j in range(count[i])]
                 setsCheck, typesCheck = self.threePart(testArr)
                 for j in range(len(setsCheck)):
                     setArr.append(sets + setsCheck[j])
                     typeArr.append(types + typesCheck[j])
-                    eye.append(uniq[ind])
+                    eye.append(int(uniq[ind]))
                 count[ind] += 2
         return(eye, setArr, typeArr)
 
@@ -362,7 +364,7 @@ class MJgame():
                     typesArr.append(['run'] + types[i])
         return(setsArr, typesArr)
 
-    def pointTally(eyes, sets, types, player, wind):
+    def pointTally(self, eyes, sets, types, player, wind):
         """
         Checks points for a winning hand:
         - Additive points system
@@ -403,17 +405,19 @@ class MJgame():
 
     def maxPoints(self, player):
         hand = self.handDict[player]
+        if not self.winBool:
+            hand.append(self.discTile)
         sets = self.setDict[player]
         types = self.typeDict[player]
         part = self.partHand(hand, sets, types)
         trackMax = 0
         for i in range(len(part[0])):
             tmpDict, points, tmpHand = self.pointTally(
-                part[i][0], part[i][1], part[i][2], player, self.wind)
-            if points > trackMax:
+                part[0][i], part[1][i], part[2][i], player, self.wind)
+            if points >= trackMax:
                 pointDict = tmpDict
                 fullHand = tmpHand
-        for each in pointDict:
-            if pointDict[each] == 0:
-                del pointDict[each]
+        deleteKey = [key for key, item in pointDict.items() if item == 0]
+        for key in deleteKey:
+            del pointDict[key]
         return(pointDict, fullHand)

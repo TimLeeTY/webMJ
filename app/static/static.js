@@ -9,20 +9,14 @@ function setInitial(){
             });
         })();
     };
-    for (var c=0; c<5; c++){
-        (function(){
-            var i = c
-            var btn = document.getElementById('button'+i)
-            btn.addEventListener('click', function(){
-                socket.emit('optChoice', roomID, i+1)
-                hideChoices() 
-            });
-            var winBtn = document.getElementById('WinButton'+i)
-            winBtn.addEventListener('click', function(){
-                socket.emit('winChoice', roomID, i+1)
-                hideWin() });
-        })();
-    };
+    var btn = document.getElementById('button0')
+    btn.addEventListener('click', function(){
+        socket.emit('optChoice', roomID, 1)
+        hideChoices() });
+    var winBtn = document.getElementById('WinButton0')
+    winBtn.addEventListener('click', function(){
+        socket.emit('winChoice', roomID, 1)
+        hideWin() });
     var ignorebtn=document.getElementById('ignorebutton');
     ignorebtn.addEventListener('click', function(){
         socket.emit('optChoice', roomID, 0);
@@ -44,6 +38,12 @@ function setInitial(){
             window.location.replace(leaveLink)
         }
     });
+    for (var i=0; i<tileDict.length; i++){
+        // Cache tile images
+        var t = tileDict[i];
+        var preload = new Image();
+        preload.scr = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+t[0]+"-"+t[1]+"-.svg";
+    }
 }
 
 function writeNames(players, wind, dealer, whoseTurn){
@@ -286,19 +286,16 @@ function hideChoices(){
 function hideWin(){
     var center = document.getElementById('centerWin');
     center.style.display= "none";
-    for (var i=0; i<5; i++){
+    var winButton = document.getElementById('WinButton0');
+    winButton.style.visibility= 'hidden';
+    var choice = document.getElementById('win0');
+    choice.style.display = 'none';
+    for (var j=0; j<4; j++){
         (function(){
-            var winButton = document.getElementById('WinButton'+i);
-            winButton.style.visibility= 'hidden';
-            var choice = document.getElementById('win'+i);
-            choice.style.display = 'none';
-            for (var j=0; j<4; j++){
-                (function(){
-                    var setTile;
-                    setTile = document.getElementById('win'+i+'-'+j);
-                    undrawTile(setTile);
-                })()}
-        })() }
+            var setTile;
+            setTile = document.getElementById('win0-'+j);
+            undrawTile(setTile);
+        })()}
     var title = document.getElementById('playerWinText');
     title.textContent = '';
     var choice5 = document.getElementById('win5');
@@ -423,9 +420,9 @@ socket.on('showWin', function(tile, hand){
     showWin(tile, hand)
 });
 
-socket.on('playerWin', function(playerName, tile, hand){
+socket.on('playerWin', function(playerName, tile, hand, pointDict){
     hideWin()
-    playerWin(playerName, tile, hand)
+    playerWin(playerName, tile, hand, pointDict)
 });
 
 window.onload = function(){

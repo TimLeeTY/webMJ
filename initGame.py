@@ -17,6 +17,7 @@ class MJgame():
                 self.deck += [i+34 for i in range(4) for j in range(2)]
             shuffle(self.deck)
             self.start = 0
+            self.wind = 0
             self.dealTiles()
             self.sT = [[], [], []]
             self.sO = [[], [], []]
@@ -27,6 +28,7 @@ class MJgame():
         self.turn = in_dict["turn"]
         self.turnNum = in_dict["turnNum"]
         self.setDict = in_dict["setDict"]
+        self.typeDict = in_dict["typeDict"]
         self.discPile = in_dict["discPile"]
         self.discTile = in_dict["discTile"]
         self.actionInd = in_dict["actionInd"]
@@ -47,6 +49,7 @@ class MJgame():
         self.turn = self.start
         self.turnNum = 0
         self.setDict = [[] for i in range(4)]
+        self.typeDict = [[] for i in range(4)]
         self.discPile = [[] for i in range(4)]
         self.actionInd = []
         self.winPlayer = []
@@ -68,7 +71,7 @@ class MJgame():
         hands[self.start] = hands[self.start][1:] + hands[self.start][0:1]
         self.handDict = hands
 
-    def addSet(self, player, newSet):
+    def addSet(self, player, newSet, newType):
         """
         Add a set to the corresponding player;
         'Gongs' that occur when a player draws is handled separately
@@ -76,6 +79,7 @@ class MJgame():
         """
         if self.addGong:
             self.setDict[player].remove(newSet)
+            self.typeDict[player].remove(newType)
             setU, setC = [newSet[0]], [1]
         else:
             setU, setC = np.unique(newSet, return_counts=True)
@@ -95,6 +99,7 @@ class MJgame():
             loc = None
         newSet.append(addTile)
         self.setDict[player].append(newSet)
+        self.typeDict[player].append(newType)
         self.actionInd = []
         return(player, newSet, loc)
 
@@ -196,7 +201,8 @@ class MJgame():
                 return(self.action())
             else:
                 newSet = self.sO[ind][setInd-1]
-                player, newSet, loc = self.addSet(player, newSet)
+                newType = self.sT[ind][setInd-1]
+                player, newSet, loc = self.addSet(player, newSet, newType)
                 return(player, self.discTile, loc, newSet)
         else:
             raise ValueError('not this players turn')
@@ -211,18 +217,19 @@ class MJgame():
         if player != self.winPlayer[0]:
             raise ValueError('player not eligible')
         elif winInd > 0:
+            maxPoints, fullHand = self.maxPoints(player)
             if self.winBool:
                 discTile = self.handDict[player].pop()
+                maxPoints['Self-Pick'] = 1
             else:
                 discTile = self.discTile
-            sets = self.setDict[player]
-            fullHand = self.handDict[player] + \
-                [tile for eachSet in sets for tile in eachSet]
-            print('fullHand ', fullHand)
+            fullHand.remove(discTile)
             if player != self.start:
+                if self.start == 3:
+                    self.wind = (self.wind + 1) % 4
                 self.start = (self.start + 1) % 4
             self.dealTiles()
-            return(player, discTile, '', fullHand)
+            return(player, discTile, maxPoints, fullHand)
         elif winInd == 0 and not self.winBool:
             self.winPlayer.pop()
             return(self.action())
@@ -255,7 +262,7 @@ class MJgame():
                     sT[i].append('gong')
                     sO[i].append([tile for i in range(3)])
             if i == 0 and s < 3:
-                for j in [-2, 1]:
+                for j in (-2, 1):
                     if 0 <= v+j and v+j < 8:
                         pair = [tile+i+j for i in range(2)]
                         if all(i in uniq for i in pair):
@@ -303,3 +310,110 @@ class MJgame():
                     return(True)
                 count[ind] += 2
         return(False)
+
+    def partHand(self, hand, sets, types):
+        """
+        Partitions hand into all winning combinations of sets + 'eyes'
+        *Input should be winning hands only*
+        """
+        if len(hand) % 3 != 2:
+            raise ValueError('hand wrong size')
+        eye = []
+        setArr = []
+        typeArr = []
+        uniq, count = np.unique(hand, return_counts=True)
+        for ind, c in enumerate(count):
+            if c >= 2:
+                # Choose pair and check for sets
+                count[ind] -= 2
+                testArr = [u for i, u in enumerate(uniq) for j in range(count[i])]
+                setsCheck, typesCheck = self.threePart(testArr)
+                for j in range(len(setsCheck)):
+                    setArr.append(sets + setsCheck[j])
+                    typeArr.append(types + typesCheck[j])
+                    eye.append(uniq[ind])
+                count[ind] += 2
+        return(eye, setArr, typeArr)
+
+    def threePart(self, a):
+        """Returns all possible ways to divide tiles into sets of 3 """
+        if len(a) == 0:
+            return([[]], [[]])
+        a = sorted(a)
+        setsArr = []
+        typesArr = []
+        aCheck = a[0]
+        if (aCheck == a[1] == a[2]):
+            sets, types = self.threePart(a[3:])
+            for i in range(len(sets)):
+                setsArr.append([[aCheck for j in range(3)]] + sets[i])
+                typesArr.append(['pong'] + types[i])
+                if a.count(aCheck) == 4:
+                    # Avoid double counting when aCheck pongs and runs
+                    return(setsArr, typesArr)
+        if (aCheck // 9 < 3) and (aCheck % 9 < 7):
+            if a.count(aCheck+1) > 0 and a.count(aCheck+2) > 0:
+                a.remove(aCheck)
+                a.remove(aCheck+1)
+                a.remove(aCheck+2)
+                sets, types = self.threePart(a)
+                for i in range(len(sets)):
+                    setsArr.append([[aCheck, aCheck+1, aCheck+2]] + sets[i])
+                    typesArr.append(['run'] + types[i])
+        return(setsArr, typesArr)
+
+    def pointTally(eyes, sets, types, player, wind):
+        """
+        Checks points for a winning hand:
+        - Additive points system
+        - Greedy counting; prioritize higher point set combinations, i.e.:
+            - All pongs -> all runs -> mix
+        Based on rules from en.wikipedia.org/wiki/Hong_Kong_Mahjong_scoring_rules
+        """
+        winds = [eachSet[0] % 9 for eachSet in sets if 27 <= eachSet[0] < 31]
+        dragonSets = [eachSet[0] % 9 for eachSet in sets if eachSet[0] >= 31]
+        suits = sorted([eachSet[0]//9 for eachSet in sets] + [eyes//9])
+        pointDict = {
+            'Common': 1 if all(setType == 'run' for setType in types) else 0,
+            'All in Triplets': 3 if
+            all(setType in ('pong', 'kong') for setType in types) else 0,
+            'All Kong': 13 if
+            all(setType == 'kong' for setType in types) else 0,
+            'Orphans': 7 if
+            all((s[0] % 9 in (0, 8)) and (s[0] // 9 < 3) for s in sets) else 0,
+            'Mized Orphans': 1 if
+            all(((s[0] % 9 in (0, 8)) or (s[0] // 9 == 3)) for s in sets) else 0,
+            'All Honor Tiles': 7 if min(suits) == 3 else 0,
+            'All One Suit': 7 if
+            suits.count(suits[0]) == len(suits) and suits[0] < 3 else 0,
+            'Mixed One Suit': 3 if 0 < suits.count(3) < len(suits) and
+            all(suit == suits[0] or suit == 3 for suit in suits) else 0,
+            'Great Dragons': 5 if len(dragonSets) == 3 else 0,
+            'Small Dragons': 3 if len(dragonSets) == 2 and eyes >= 31 else 0,
+            'Three Dragons': len(dragonSets),
+            'Great Winds': 13 if len(winds) == 4 else 0,
+            'Small Winds': 6 if len(winds) == 3 and 27 <= eyes < 3 else 0,
+            'Winds': sum(i in winds for i in [wind, player]),
+        }
+        pointDict['Winds'] = 0 if pointDict['Small Winds'] != 0 else sum(
+            i in winds for i in [wind, player])
+        fullHand = [tile for eachSet in sets for tile in eachSet] +\
+            [eyes for i in range(2)]
+        return(pointDict, sum(pointDict.values()), fullHand)
+
+    def maxPoints(self, player):
+        hand = self.handDict[player]
+        sets = self.setDict[player]
+        types = self.typeDict[player]
+        part = self.partHand(hand, sets, types)
+        trackMax = 0
+        for i in range(len(part[0])):
+            tmpDict, points, tmpHand = self.pointTally(
+                part[i][0], part[i][1], part[i][2], player, self.wind)
+            if points > trackMax:
+                pointDict = tmpDict
+                fullHand = tmpHand
+        for each in pointDict:
+            if pointDict[each] == 0:
+                del pointDict[each]
+        return(pointDict, fullHand)

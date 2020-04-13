@@ -1,0 +1,162 @@
+div.mainBlock{
+    width: 25em 
+}
+
+
+span.header{
+    text-align: center;
+    font-weight: 500;
+    color: rgb(80, 80, 80);
+    background-color: white;
+    font-size: 26px;
+    display: block;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+    /* border-bottom: solid rgb(200, 200, 200) 0.5px; */
+}
+
+span.optText{
+    display:block;
+    text-align:center;
+    margin-top: -2em;
+    margin-bottom:1em; 
+    line-height: 20px;
+    width:100%;
+
+}
+
+div.or{
+    height: 1em;
+    background-color: white;
+    width: fit-content;
+    padding: 0em 0.5em;
+    text-align: center;
+    margin: auto;
+    
+}
+hr.optDiv{
+    margin-top: 2em;
+    margin-bottom: -0.5em;
+    border-top: solid rgb(200, 200, 200) 0.5px ;
+
+}
+
+div.MotD{
+    width: 17em;
+    margin-top: 2em;
+    text-align: center;
+    padding: 1.5em 4em;
+    font-size: 16px;
+    color: #A0A0A0
+}
+
+span.listName{
+    float:right;
+}
+
+
+div.line{
+    height:2.5em;
+    text-align:center;
+    font-weight:500;
+    font-size:20px;
+    margin-bottom: 0em;
+}
+div.line-half{
+    width:49%;
+    height:2.5em;
+    display:inline-block;
+    text-align:center;
+    font-weight:500;
+    font-size:20px;
+}
+
+span.lineText{
+    height:2.5em;
+    text-align:center;
+    font-weight:500;
+    font-size:20px;
+    margin: -2em auto 0em auto;
+    background-color:white;
+    width:fit-content;
+    text-align:center;
+    display:block;
+    padding:0em 1em;
+}
+span.line-halfText{
+    height:2.5em;
+    text-align:center;
+    font-weight:500;
+    font-size:20px;
+    margin: -2em auto 0em auto;
+    background-color:white;
+    width:fit-content;
+    text-align:center;
+    padding:0em 1em;
+    display: block;
+    /* position: absolute; */
+}
+
+span.right{
+    margin-right: 2.5em;
+    float: right;
+}
+span.left{
+    margin-left: 3em;
+    float: left;
+}
+
+hr{
+    border-top:1px grey solid;
+    margin: 1.5em 0em;
+}
+
+div.tooltip {
+    position: relative;
+    pointer-events: fill;
+    width: 2em;
+    height: 100%;
+    background-repeat: no-repeat;
+    display: inline-block;
+    margin: 0em -3px 0em -3px;
+}
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 6em;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  font-size: 16px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -3em;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+div.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}

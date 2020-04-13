@@ -19,6 +19,12 @@ def index():
     return(render_template("index.html", title='Home Page', inRoom=inRoom))
 
 
+@app.route('/learn')
+@login_required
+def learn():
+    return(render_template("learn.html"))
+
+
 @app.route('/login',  methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -251,8 +257,8 @@ def winChoice(roomID, winInd):
                     if i.order == player:
                         playerSid = i.player_sid
                         playerName = i.username
-                if winInd > 0 and sT == '':
-                    socketio.emit('playerWin', (playerName, tile, sO), room=roomID)
+                if winInd > 0 and type(sT) == dict:
+                    socketio.emit('playerWin', (playerName, tile, sO, sT), room=roomID)
                 elif sT == 'win':
                     socketio.emit('showWin', (tile, sO), room=playerSid)
                 elif len(sO) > 0:

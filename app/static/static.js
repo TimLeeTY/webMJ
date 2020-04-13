@@ -233,7 +233,7 @@ function showWin(tile, hand){
     center.style.display= "inline-block";
 }
 
-function playerWin(player, tile, hand){
+function playerWin(player, tile, hand, pointDict){
     var center = document.getElementById('centerWin');
     var choice = document.getElementById('win0');
     choice.style.display = 'inline-block'
@@ -330,7 +330,7 @@ function undrawTile(tileEle){
 var socket = io();
 var playerOrder
 var tileDict = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [3, 1], [3, 2], [3, 3], [3, 4], [4, 1], [4, 2], [4, 3]]
-var suitLabel = ['Dots', 'Bamboo', 'Number']
+var suitLabel = ['Dots', 'Bamboo', 'Numbers']
 var honorLabel = [['East', 'South', 'West', 'North'], ['Red', 'Green', 'White']]
 
 socket.on('initialise', function(players, pos, whoseTurn, order){

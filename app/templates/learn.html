@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <link rel='stylesheet' type='text/css' href="static/style_learn.css"/>
+    <div class="mainBlock">
+        <img id="logo-square" src="https://webmj-assets.s3.us-east-2.amazonaws.com/icon.svg">
+        <span class='header' id='header0'>1. Tiles</span>
+        <span class='optText'> 
+            Here are all the tiles, arranged into suits. 
+            <br> If you are ever unsure of a tile's value, 
+            <br> just mouseover it for a hint!</span>
+        {% set suitLabel = ['Dots', 'Bamboo', 'Numbers'] %}
+        {% for i in range(3) %}
+        <hr>
+        <span class="lineText"> {{ suitLabel[i] }} </span>
+        <div class="line">
+            {% for j in range(9) %}
+            <div class='tooltip' id="{{ i }}-{{ j }}">
+                <span class="tooltiptext"> </span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <hr>
+        <span class='line-halfText left'> Winds </span>
+        <span class='line-halfText right'> Dragons </span>
+        <div class="line-half">
+            {% for j in range(4) %}
+            <div class='tooltip' id="3-{{ j }}">
+                <span class="tooltiptext"> </span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="line-half">
+            {% for j in range(3) %}
+            <div class='tooltip' id="3-{{ j+4 }}">
+                <span class="tooltiptext"> </span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class='line'>
+        <script src="/static/learnScript.js"></script>
+{% endblock %}

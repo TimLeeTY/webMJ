@@ -11,6 +11,7 @@
             <a class='menuLink loginLink' href="{{ url_for('login') }}">Login</a>
             {% else %}
             <a class='menuLink loginLink' href="{{ url_for('logout') }}">Logout</a>
+            <a class='menuLink loginLink' href="{{ url_for('learn') }}">Leave Room</a>
             {% endif %}
             {% if roomID is defined %}
             <a class='menuLink' id='leaveRoom' href="{{ url_for('leaveRoom', roomID=roomID) }}">Leave Room</a>

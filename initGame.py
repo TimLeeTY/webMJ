@@ -224,7 +224,7 @@ class MJgame():
                 maxPoints['Self Draw'] = 1
             else:
                 discTile = self.discTile
-                fullHand.remove(discTile)
+            fullHand.remove(discTile)
             if player != self.start:
                 if self.start == 3:
                     self.wind = (self.wind + 1) % 4

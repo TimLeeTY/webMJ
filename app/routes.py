@@ -187,7 +187,7 @@ def connectGame(roomID):
                 userInd = user.order
                 hand = game.showHand(userInd)
                 emit('initialise', (players, (userInd-game.start) % 4,
-                                    game.turn, userInd))
+                                    game.turn, userInd, game.wind))
                 emit('showHand', hand)
                 emit('drawDiscards', game.showDiscards())
                 emit('drawSets', game.showSets())

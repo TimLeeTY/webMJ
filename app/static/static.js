@@ -9,10 +9,14 @@ function setInitial(){
             });
         })();
     };
-    var btn = document.getElementById('button0')
-    btn.addEventListener('click', function(){
-        socket.emit('optChoice', roomID, 1)
-        hideChoices() });
+    for (var i=0; i<5; i++){
+        (function(){
+            var c = i
+            var btn = document.getElementById('button'+i)
+            btn.addEventListener('click', function(){
+                socket.emit('optChoice', roomID, (c+1))
+                hideChoices() });
+        })(); }
     var winBtn = document.getElementById('WinButton0')
     winBtn.addEventListener('click', function(){
         socket.emit('winChoice', roomID, 1)
@@ -26,7 +30,7 @@ function setInitial(){
         socket.emit('winChoice', roomID, 0);
         hideWin() });
     var hideWinbtn=document.getElementById('hideWinButton');
-    hideWinbtn.addEventListener('click', function(){
+    hideWinbtn.addEventListener('click', function(){;
         hideWin()
         socket.emit('connected_to_game', roomID); });
     var leaveButton = document.getElementById('leaveRoom');
@@ -46,7 +50,7 @@ function setInitial(){
     }
 }
 
-function writeNames(players, wind, dealer, whoseTurn){
+function writeNames(players, wind, dealer, whoseTurn, currentWind){
     for (var i=0; i < 4; i++){
         var username = '<b>'+players[i].replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;')+'</b>'+'\n'+wind[i];
         if (i == whoseTurn){
@@ -61,6 +65,8 @@ function writeNames(players, wind, dealer, whoseTurn){
         var nameplate = document.getElementById('usernameText'+c)
         nameplate.innerHTML = username
     }
+    var windTxt = document.getElementById('currentWind');
+    windTxt.textContent = currentWind + ' wind';
 }
 
 function drawHands(handSizes){
@@ -264,9 +270,9 @@ function playerWin(player, tile, hand, pointKey, pointValue){
     var hideBtn = document.getElementById('hideWinButton');
     hideBtn.style.display = 'inline-block';
     var title = document.getElementById('playerWinText');
-    var pointStr = 'points'
-    if (scoreTally != 0){
-        pointStr = 'point'
+    var pointStr = ' points'
+    if (scoreTally == 1){
+        pointStr = ' point'
     }
     title.textContent = player+' wins! - '+Math.min(scoreTally, 13)+pointStr;
     center.style.display= "inline-block";
@@ -355,7 +361,7 @@ var tileDict = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], 
 var suitLabel = ['Dots', 'Bamboo', 'Numbers']
 var honorLabel = [['East', 'South', 'West', 'North'], ['Red', 'Green', 'White']]
 
-socket.on('initialise', function(players, pos, whoseTurn, order){
+socket.on('initialise', function(players, pos, whoseTurn, order, currentWind){
     var wind = ['east', 'south', 'west', 'north'];
     var windList = ['', '', '', ''];
     var playerList = ['', '', '', ''];
@@ -366,7 +372,7 @@ socket.on('initialise', function(players, pos, whoseTurn, order){
         playerList[i] = players[(i+order+ 4)%4];
         windList[i] = wind[(i+pos)%4];
     }
-    writeNames(playerList, windList, dealer, whoseTurn)
+    writeNames(playerList, windList, dealer, whoseTurn, wind[currentWind])
 });
 
 socket.on('showHand', function(tiles){

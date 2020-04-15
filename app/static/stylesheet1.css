@@ -469,3 +469,14 @@ div.tooltip:hover .fliptooltiptext {
   visibility: visible;
   opacity: 1;
 }
+
+#currentWind{
+    width: 20%;
+    height: 4%;
+    position: absolute;
+    left: 40%;
+    top: 48%;
+    text-align: center;
+    font-size: 20px;
+    color: #999999;
+}

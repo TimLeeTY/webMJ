@@ -364,7 +364,7 @@ class MJgame():
                     typesArr.append(['run'] + types[i])
         return(setsArr, typesArr)
 
-    def pointTally(self, eyes, sets, types, player, wind):
+    def pointTally(self, eyes, sets, types, player):
         """
         Checks points for a winning hand:
         - Additive points system
@@ -395,10 +395,9 @@ class MJgame():
             'Three Dragons': len(dragonSets),
             'Great Winds': 13 if len(winds) == 4 else 0,
             'Small Winds': 6 if len(winds) == 3 and 27 <= eyes < 3 else 0,
-            'Winds': sum(i in winds for i in [wind, player]),
         }
         pointDict['Winds'] = 0 if pointDict['Small Winds'] != 0 else sum(
-            i in winds for i in [wind, player])
+            i in winds for i in [self.wind, (player-self.start) % 4])
         fullHand = [tile for eachSet in sets for tile in eachSet] +\
             [eyes for i in range(2)]
         return(pointDict, sum(pointDict.values()), fullHand)
@@ -413,7 +412,7 @@ class MJgame():
         trackMax = 0
         for i in range(len(part[0])):
             tmpDict, points, tmpHand = self.pointTally(
-                part[0][i], part[1][i], part[2][i], player, self.wind)
+                part[0][i], part[1][i], part[2][i], player)
             if points >= trackMax:
                 pointDict = tmpDict
                 fullHand = tmpHand

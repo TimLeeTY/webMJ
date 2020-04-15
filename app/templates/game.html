@@ -28,23 +28,29 @@
         {% endfor %}
     </div>
     <div id='centerWin'>
-        <div class='wins' id='win5'>
-            <button class='buttonEnd' id='ignoreWinButton'> ignore </button>
-            <button class='buttonEnd' id='hideWinButton'> hide </button>
+        <h2 id='playerWinText'> </h2>
+        <div class='wins' id='scoreList'>
+            <table class = "scoreTable" id='scoreTable'>
+                <tbody>
+                </tbody>
+            </table>
         </div>
         <div class='wins' id='win0'>
             <button class='buttonWin' id='WinButton0'>win!</button>
-            <div class='tilewin tooltip' id='win0-0'>
-            <span class="tooltiptext"> </span>
-            </div>
-            <div class='winAdd'> + </div>
             {% for j in range(17) %}
             <div class='tilewin tooltip' id='win0-{{ j+1 }}'>
             <span class="tooltiptext"> </span>
             </div>
             {% endfor %}
+            <div class='winAdd'> + </div>
+            <div class='tilewin tooltip' id='win0-0'>
+            <span class="tooltiptext"> </span>
+            </div>
         </div>
-        <h2 id='playerWinText'> </h2>
+        <div class='wins' id='win5'>
+            <button class='buttonEnd' id='ignoreWinButton'> ignore </button>
+            <button class='buttonEnd' id='hideWinButton'> hide </button>
+        </div>
     </div>
      
     {% set tileLen = [8, 16, 14, 25] %}

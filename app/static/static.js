@@ -217,6 +217,7 @@ function showWin(tile, hand){
     winButton.style.visibility = 'visible';
     var choice = document.getElementById('win0');
     choice.style.display = 'inline-block'
+    choice.style.margin= '8em 0em 3em 0em'
     var newTile = document.getElementById('win0-0');
     drawTile(newTile, tile)
     for (var j=0; j<hand.length; j++){
@@ -233,7 +234,7 @@ function showWin(tile, hand){
     center.style.display= "inline-block";
 }
 
-function playerWin(player, tile, hand, pointDict){
+function playerWin(player, tile, hand, pointKey, pointValue){
     var center = document.getElementById('centerWin');
     var choice = document.getElementById('win0');
     choice.style.display = 'inline-block'
@@ -243,14 +244,31 @@ function playerWin(player, tile, hand, pointDict){
         (function(){
             var setTile
             setTile = document.getElementById('win0-'+(j+1));
-            drawTile(setTile, hand[j])
+            drawTile(setTile, hand[j]);
         })()};
+    var scoreTable = document.getElementById('scoreTable');
+    var scoreTally = 0;
+    for (var i = 0; i<pointKey.length; i++){
+        (function(){
+            var row = scoreTable.insertRow(0); 
+            var key = row.insertCell(0);
+            var value = row.insertCell(1);
+            scoreTally += pointValue[i]
+            key.textContent = pointKey[i]; 
+            value.textContent = pointValue[i]; 
+        })()};
+    var scoreList= document.getElementById('scoreList');
+    scoreList.style.display = 'inline-block';
     var choice5 = document.getElementById('win5');
     choice5.style.display = 'inline-block';
     var hideBtn = document.getElementById('hideWinButton');
     hideBtn.style.display = 'inline-block';
     var title = document.getElementById('playerWinText');
-    title.textContent = player+' wins!';
+    var pointStr = 'points'
+    if (scoreTally != 0){
+        pointStr = 'point'
+    }
+    title.textContent = player+' wins! - '+Math.min(scoreTally, 13)+pointStr;
     center.style.display= "inline-block";
 }
 
@@ -290,12 +308,17 @@ function hideWin(){
     winButton.style.visibility= 'hidden';
     var choice = document.getElementById('win0');
     choice.style.display = 'none';
-    for (var j=0; j<4; j++){
+    choice.style.margin= '0em 0em 0em 0em'
+    for (var j=0; j<18; j++){
         (function(){
             var setTile;
             setTile = document.getElementById('win0-'+j);
             undrawTile(setTile);
         })()}
+    var scoreTable = document.getElementById('scoreTable');
+    scoreTable.innerHTML = '';
+    var scoreList= document.getElementById('scoreList');
+    scoreList.style.display = 'none';
     var title = document.getElementById('playerWinText');
     title.textContent = '';
     var choice5 = document.getElementById('win5');
@@ -309,6 +332,7 @@ function hideWin(){
 function drawTile(tileEle, tileInd){
     var tileVal = tileDict[tileInd];
     var label = tileEle.childNodes[1];
+    tileEle.style.display= "inline-block";
     tileEle.style.backgroundImage = "url('https://webmj-assets.s3.us-east-2.amazonaws.com/"+tileVal[0]+"-"+tileVal[1]+"-.svg";;
     tileEle.style.visibility = "visible";
     if (tileVal[0] < 3){
@@ -322,6 +346,7 @@ function drawTile(tileEle, tileInd){
 function undrawTile(tileEle){
     tileEle.style.backgroundImage = "none";
     tileEle.style.visibility = "hidden";
+    tileEle.style.display= "none";
 }
 
 var socket = io();
@@ -420,9 +445,9 @@ socket.on('showWin', function(tile, hand){
     showWin(tile, hand)
 });
 
-socket.on('playerWin', function(playerName, tile, hand, pointDict){
+socket.on('playerWin', function(playerName, tile, hand, pointKey, pointValue){
     hideWin()
-    playerWin(playerName, tile, hand, pointDict)
+    playerWin(playerName, tile, hand, pointKey, pointValue)
 });
 
 window.onload = function(){

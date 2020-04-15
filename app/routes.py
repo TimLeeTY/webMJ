@@ -257,9 +257,11 @@ def winChoice(roomID, winInd):
                     if i.order == player:
                         playerSid = i.player_sid
                         playerName = i.username
-                if winInd > 0 and type(sT) == dict:
-                    print(type(sT))
-                    socketio.emit('playerWin', (playerName, tile, sO, sT), room=roomID)
+                if winInd > 0 and isinstance(sT, dict):
+                    p = [[key, value] for key, value in sT.items() if value > 0]
+                    p = list(map(list, zip(*p)))
+                    socketio.emit('playerWin', (playerName, tile, sO, p[0], p[1]),
+                                  room=roomID)
                 elif sT == 'win':
                     socketio.emit('showWin', (tile, sO), room=playerSid)
                 elif len(sO) > 0:

@@ -1,6 +1,6 @@
 
 #playerWinText{
-    transform: rotate(180deg);
+    /* transform: rotate(180deg); */
 }
 
 #credit{
@@ -105,13 +105,40 @@ div.wins{
     display:none;
     width: 90%;
     height: 10%;
-    transform: rotate(180deg);
-    margin-left: 7%;
+    /* transform: rotate(180deg); */
+    /* margin-left: 7%; */
+}
+
+#scoreList{
+    height: fit-content;
+    max-height: 10em;
+    /* margin-top: 5%; */
+    margin-bottom: 5%;
+    overflow-y: scroll;
 }
 
 #win5{
     margin-top: 5%;
     margin-bottom: 10%;
+}
+
+table.scoreTable{
+    display: table;
+    margin: auto;
+    /* margin-top: 1em; */
+    border-collapse: collapse;
+    width: 90%;
+    font-size: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: #eeeeee;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 0.5em 0em 0.5em 1.5em;
 }
 
 div.discards{
@@ -166,12 +193,12 @@ div.tilechoice{
 }
 
 div.tilewin{
-    float:right;
+    float: left;
     width: 7%;
     height: 100%;
     margin-left: -0.4%;
     margin-right: -0.4%;
-    display: inline-block;
+    display: none;
     background-repeat: no-repeat;
     visibility: hidden;
     /* background-image: url('/media/4-1-.svg'); */
@@ -188,11 +215,12 @@ div.choicetext{
 }
 
 div.winAdd{
-    float: right;
+    float: left;
     width: 5%;
     height: 100%;
     text-align: center;
-    margin-right: 1%;
+    margin-right: 0.6%;
+    line-height: 30px;
 }
 
 #username2{
@@ -271,9 +299,10 @@ div.winAdd{
     left: 15%;
     top: 25%;
     z-index: 2;
-    transform: rotate(180deg);
+    /* transform: rotate(180deg); */
     display:none;
     text-align: center;
+    padding-top:2em;
 }
 
 #username1{

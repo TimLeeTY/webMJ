@@ -221,7 +221,7 @@ class MJgame():
             maxPoints, fullHand = self.maxPoints(player)
             if self.winBool:
                 discTile = self.handDict[player].pop()
-                maxPoints['Self-Pick'] = 1
+                maxPoints['Self Draw'] = 1
             else:
                 discTile = self.discTile
                 fullHand.remove(discTile)

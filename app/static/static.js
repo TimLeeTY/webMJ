@@ -33,6 +33,7 @@ function setInitial(){
     hideWinbtn.addEventListener('click', function(){;
         hideWin()
         socket.emit('connected_to_game', roomID); });
+        
     var leaveButton = document.getElementById('leaveRoom');
     var leaveLink = leaveButton.href
     leaveButton.removeAttribute('href')
@@ -197,13 +198,21 @@ function chooseDiscard(tile){
 }
 
 function showChoices(tile, types, sets){
+    if (typeof tile == "number"){
+        var tileArr = []
+        for (var i=0; i<sets.length; i++){
+            tileArr.push(tile)
+        }
+    } else {
+        tileArr = tile
+    }
     var center = document.getElementById('center');
     for (var i=0; i<sets.length; i++){
         (function(){
             var choice = document.getElementById('choice'+i);
             choice.style.display = 'inline-block'
             var newTile = document.getElementById('choice'+i+'-0');
-            drawTile(newTile, tile)
+            drawTile(newTile, tileArr[i])
             for (var j=0; j<sets[i].length; j++){
                 (function(){
                     var setTile = document.getElementById('choice'+i+'-'+(j+1));
@@ -456,7 +465,3 @@ socket.on('playerWin', function(playerName, tile, hand, pointKey, pointValue){
     playerWin(playerName, tile, hand, pointKey, pointValue)
 });
 
-window.onload = function(){
-    socket.emit('connected_to_game', roomID);
-    setInitial();
-}

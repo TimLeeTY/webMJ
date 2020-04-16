@@ -20,7 +20,6 @@ def index():
 
 
 @app.route('/learn')
-@login_required
 def learn():
     return(render_template("learn.html"))
 
@@ -326,17 +325,19 @@ def draw(roomID, game):
     for i in players:
         if i.order == player:
             playerSid = i.player_sid
-    socketio.emit('playerDraw', tile, room=playerSid)
-    socketio.emit('blindDraw', player, room=roomID)
+            if playerSid is not None:
+                socketio.emit('playerDraw', tile, room=playerSid)
+            socketio.emit('blindDraw', player, room=roomID)
+            break
     if winBool:
         sets = game.setDict[player]
         fullHand = [tile for eachSet in sets for tile in eachSet]\
             + game.handDict[player][:-1]
         socketio.emit('showWin', (tile, fullHand), room=playerSid)
-    if gongBool:
-        sT = ['gong']
-        sO = [[tile for i in range(3)]]
-        socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+    if len(gongBool) > 0:
+        sT = game.sT[0]
+        sO = game.sO[0]
+        socketio.emit('showChoices', (gongBool, sT, sO), room=playerSid)
 
 
 @socketio.on('leave')

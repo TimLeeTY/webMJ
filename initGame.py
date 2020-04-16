@@ -34,6 +34,7 @@ class MJgame():
         self.actionInd = in_dict["actionInd"]
         self.winPlayer = in_dict["winPlayer"]
         self.addGong = in_dict["addGong"]
+        self.darkGong = in_dict["darkGong"]
         self.gongBool = in_dict["gongBool"]
         self.winBool = in_dict["winBool"]
         self.deckLoc = in_dict["deckLoc"]
@@ -54,9 +55,10 @@ class MJgame():
         self.discPile = [[] for i in range(4)]
         self.actionInd = []
         self.winPlayer = []
-        self.addGong = False
+        self.addGong = []
+        self.darkGong = []
         self.discTile = None
-        self.gongBool = False
+        self.gongBool = []
         self.winBool = False
         shuffle(self.deck)
         handSize = 13
@@ -78,29 +80,28 @@ class MJgame():
         'Gongs' that occur when a player draws is handled separately
         (hence gongBool and addGong)
         """
-        if self.addGong:
+        if newType == 'addGong':
             self.setDict[player].remove(newSet)
-            self.typeDict[player].remove(newType)
-            setU, setC = [newSet[0]], [1]
+            self.typeDict[player].remove('pong')
+            self.typeDict[player].append('gong')
+            newSet = [newSet[0] for i in range(4)]
+        elif newType == 'darkGong':
+            self.typeDict[player].append('gong')
+            newSet = [newSet[0] for i in range(4)]
         else:
-            setU, setC = np.unique(newSet, return_counts=True)
-        if self.gongBool:
-            setC[0] += 1
-        uniq, count = np.unique(self.handDict[player], return_counts=True)
-        for i, each in enumerate(setU):
-            count[uniq == each] -= setC[i]
-        self.handDict[player] = sorted(
-            [int(u) for i, u in enumerate(uniq) for j in range(count[i])], reverse=True)
-        if not self.gongBool:
+            self.typeDict[player].append(newType)
+        # remove tiles from hand
+        remTiles = [newSet[0]] if newType == 'darkGong' else newSet
+        for each in remTiles:
+            self.handDict[player].remove(each)
+        # redirect turn to appropriate player
+        if newType not in ['addGong', 'darkGong']:
             addTile = self.discPile[(self.turn - 1) % 4].pop()
             self.turn = player
-            loc = sum([len(i) for i in self.setDict[player]])
-        else:
-            addTile = newSet[0]
-            loc = None
-        newSet.append(addTile)
+            newSet.append(addTile)
+        loc = sum([len(i) for i in self.setDict[player]])\
+            if newType != 'addGong' else None
         self.setDict[player].append(newSet)
-        self.typeDict[player].append(newType)
         self.actionInd = []
         return(player, newSet, loc)
 
@@ -119,16 +120,23 @@ class MJgame():
         tile = self.deck[self.deckLoc]
         self.deckLoc += 1
         self.handDict[player].append(tile)
+        hand = self.handDict[player]
+        sets = self.setDict[player]
+        uniq, count = np.unique(hand, return_counts=True)
+        # Do win logic
         self.winBool = self.checkWin(self.handDict[player])
         if self.winBool:
             self.winPlayer = [player]
-        self.addGong = any(np.array_equal(x, [tile for i in range(3)])
-                           for x in self.setDict[player])
-        self.gongBool = self.handDict[player].count(tile) == 4 or self.addGong
-        if self.gongBool:
-            self.actionInd = [0]
-            self.sO = [[[tile for i in range(3)]]]
-            self.sT = [['gong']]
+        # Do add gong and dark gong logic
+        self.addGong = [checkTile for x in sets for checkTile in uniq
+                        if np.array_equal(x, [int(checkTile) for i in range(3)])]
+        self.darkGong = [int(i) for i in uniq[count == 4]]
+        self.actionInd = [0] if len(self.addGong) + len(self.darkGong) > 0 else []
+        self.sT = [['addGong' for i in range(len(self.addGong))] +
+                   ['darkGong' for i in range(len(self.darkGong))]]
+        self.sO = [[[int(eTile) for i in range(3)]
+                    for eTile in np.append(self.addGong, self.darkGong)]]
+        self.gongBool = self.addGong + self.darkGong
         return(tile, player, self.winBool, self.gongBool)
 
     def handSizes(self, player):
@@ -156,7 +164,7 @@ class MJgame():
         if not (self.turn == player and len(self.actionInd) == 0 and
                 len(self.handDict[player]) % 3 == 2):
             raise ValueError('not this players turn')
-        self.gongBool, self.winBool, self.addGong = False, False, False
+        self.gongBool, self.winBool, self.addGong = [], False, []
         tile = self.handDict[player][tileInd]
         self.discTile = tile
         self.discPile[player].append(tile)
@@ -167,8 +175,8 @@ class MJgame():
 
     def action(self):
         """Returns the next action to be taken based on game state """
-        if self.gongBool:
-            discTile = self.sO[0][0]
+        if len(self.gongBool) > 0:
+            discTile = self.gongBool
         else:
             discTile = self.discTile
         if len(self.winPlayer) > 0:
@@ -195,7 +203,7 @@ class MJgame():
         ind = self.actionInd[0]
         playerAction = (self.turn + ind) % 4
         if player == playerAction:
-            if setInd == 0 and self.gongBool:
+            if setInd == 0 and len(self.gongBool) > 0:
                 return(None)
             elif setInd == 0:
                 self.actionInd.pop(0)
@@ -381,8 +389,8 @@ class MJgame():
             all(setType in ('pong', 'kong') for setType in types) else 0,
             'All Kong': 13 if
             all(setType == 'kong' for setType in types) else 0,
-            'Orphans': 7 if
-            all((s[0] % 9 in (0, 8)) and (s[0] // 9 < 3) for s in sets) else 0,
+            'Orphans': 7 if all(s[0] % 9 in (0, 8) and s[0] // 9 < 3 and s[0] == s[1]
+                                for s in sets) else 0,
             'Mized Orphans': 1 if
             all(((s[0] % 9 in (0, 8)) or (s[0] // 9 == 3)) for s in sets) else 0,
             'All Honor Tiles': 7 if min(suits) == 3 else 0,

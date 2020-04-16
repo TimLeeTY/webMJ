@@ -91,7 +91,7 @@ class MJgame():
         else:
             self.typeDict[player].append(newType)
         # remove tiles from hand
-        remTiles = [newSet[0]] if newType == 'darkGong' else newSet
+        remTiles = [newSet[0]] if newType == 'addGong' else newSet
         for each in remTiles:
             self.handDict[player].remove(each)
         # redirect turn to appropriate player

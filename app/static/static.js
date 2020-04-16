@@ -216,10 +216,16 @@ function showChoices(tile, types, sets){
             for (var j=0; j<sets[i].length; j++){
                 (function(){
                     var setTile = document.getElementById('choice'+i+'-'+(j+1));
-                    drawTile(setTile, sets[i][j])
+                    drawTile(setTile, sets[i][j]);
                 })()}
-        var btn = document.getElementById('button'+i);
-        btn.textContent = types[i];
+            var btn = document.getElementById('button'+i);
+            if (types[i] == 'addGong'){
+                types[i] = 'gong';
+            };
+            if (types[i] == 'darkGong'){
+                types[i] = 'gong';
+            };
+            btn.textContent = types[i];
         })() }
     var choice5 = document.getElementById('choice5');
     choice5.style.display = 'inline-block'

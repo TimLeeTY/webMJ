@@ -6,8 +6,12 @@ WebMJ uses a `Python-Flask` backend with asynchronous websocket communication vi
 Deployed on [Heroku](https://web-mj.herokuapp.com)!
 
 ## Screenshots:
-![A game in progress](images/MJ_6.png)
-![Tutorial screen](images/MJ_2.png)
+
+![A game in progress](Images/MJ_6.png)
+
+---
+
+![Tutorial screen](Images/MJ_2.png)
 
 ## Requirements:
 - `Python 3.6`

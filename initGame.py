@@ -202,19 +202,18 @@ class MJgame():
         """
         ind = self.actionInd[0]
         playerAction = (self.turn + ind) % 4
-        if player == playerAction:
-            if setInd == 0 and len(self.gongBool) > 0:
-                return(None)
-            elif setInd == 0:
-                self.actionInd.pop(0)
-                return(self.action())
-            else:
-                newSet = self.sO[ind][setInd-1]
-                newType = self.sT[ind][setInd-1]
-                player, newSet, loc = self.addSet(player, newSet, newType)
-                return(player, self.discTile, loc, newSet)
-        else:
+        if player != playerAction:
             raise ValueError('not this players turn')
+        if setInd == 0 and len(self.gongBool) > 0:
+            return(None)
+        elif setInd == 0:
+            self.actionInd.pop(0)
+            return(self.action())
+        else:
+            newSet = self.sO[ind][setInd-1]
+            newType = self.sT[ind][setInd-1]
+            player, newSet, loc = self.addSet(player, newSet, newType)
+            return(player, self.discTile, loc, newSet)
 
     def playerWin(self, player, winInd):
         """

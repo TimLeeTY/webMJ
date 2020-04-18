@@ -70,6 +70,11 @@ function writeNames(players, wind, dealer, whoseTurn, currentWind){
     windTxt.textContent = currentWind + ' wind';
 }
 
+function tilesLeft(tiles){
+    var tilesTxt = document.getElementById('tilesLeft');
+    tilesTxt.textContent = '(' + tiles+ ')';
+}
+
 function drawHands(handSizes){
     for (var hand=0; hand <3; hand++){
         var t;
@@ -90,7 +95,7 @@ function drawHands(handSizes){
 function drawDiscards(tiles, player){
     for (var t=0; t<22; t++){
         var tile=document.getElementById('discard-'+player+'-'+t);
-        if( t<tiles.length; t++){
+        if (t<tiles.length){
             drawTile(tile, tiles[t])
         }
         else {
@@ -371,7 +376,7 @@ var tileDict = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], 
 var suitLabel = ['Dots', 'Bamboo', 'Numbers']
 var honorLabel = [['East', 'South', 'West', 'North'], ['Red', 'Green', 'White']]
 
-socket.on('initialise', function(players, pos, whoseTurn, order, currentWind){
+socket.on('initialise', function(players, pos, whoseTurn, order, currentWind, tiles){
     var wind = ['east', 'south', 'west', 'north'];
     var windList = ['', '', '', ''];
     var playerList = ['', '', '', ''];
@@ -383,6 +388,7 @@ socket.on('initialise', function(players, pos, whoseTurn, order, currentWind){
         windList[i] = wind[(i+pos)%4];
     }
     writeNames(playerList, windList, dealer, whoseTurn, wind[currentWind])
+    tilesLeft(tiles)
 });
 
 socket.on('showHand', function(tiles){
@@ -437,9 +443,10 @@ socket.on('playerDraw', function(tile){
     playerDraw(tile)
 });
 
-socket.on('blindDraw', function(player){
+socket.on('blindDraw', function(player, tiles){
     player = (player - playerOrder + 4) % 4 ;
     whoseTurn(player);
+    tilesLeft(tiles);
     if (player !== 0){
         draw(player)
     }

@@ -470,13 +470,25 @@ div.tooltip:hover .fliptooltiptext {
   opacity: 1;
 }
 
-#currentWind{
+div.centreText{
     width: 20%;
-    height: 4%;
+    height: 8%;
     position: absolute;
     left: 40%;
-    top: 48%;
+    top: 46%;
     text-align: center;
+}
+
+#currentWind{
+    height: 50%;
+    width: 100%; 
     font-size: 20px;
+    color: #999999;
+}
+
+#tilesLeft{
+    height: 50%;
+    width: 100%; 
+    font-size: 16px;
     color: #999999;
 }

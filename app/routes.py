@@ -186,7 +186,7 @@ def connectGame(roomID):
                 userInd = user.order
                 hand = game.showHand(userInd)
                 emit('initialise', (players, (userInd-game.start) % 4,
-                                    game.turn, userInd, game.wind))
+                                    game.turn, userInd, game.wind, game.tilesLeft()))
                 emit('showHand', hand)
                 emit('drawDiscards', game.showDiscards())
                 emit('drawSets', game.showSets())
@@ -209,30 +209,29 @@ def discardTile(tile, roomID):
         room = Room.query.filter_by(roomID=roomID).first()
         user = User.query.filter_by(username=current_user.username).first()
         if user is not None and room is not None:
-            if user.in_room == roomID:
-                players = room.players.all()
-                userInd = user.order
-                game = MJgame(in_dict=room.load_JSON())
-                # try:
-                player, tile, sT, sO = game.discard(tile, userInd)
-                # except ValueError:
-                    # return
-                room.set_JSON(game)
-                db.session.commit()
-                hand = game.showHand(userInd)
-                emit('showHand', hand)
-                socketio.emit('discardTileHand', player, room=roomID)
-                for i in players:
-                    if i.order == player:
-                        playerSid = i.player_sid
-                if sT == 'win':
-                    socketio.emit('showWin', (tile, sO), room=playerSid)
-                elif len(sO) > 0:
-                    socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
-                else:
-                    loc = sT
-                    socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
-                    draw(roomID, game)
+            if user.in_room != roomID:
+                raise ValueError('player not in room')
+            userInd = user.order
+            game = MJgame(in_dict=room.load_JSON())
+            # try:
+            player, tile, sT, sO = game.discard(tile, userInd)
+            # except ValueError:
+            #    return
+            room.set_JSON(game)
+            db.session.commit()
+            player_q = room.players.filter_by(order=player).first()
+            playerSid = player_q.player_sid
+            hand = game.showHand(userInd)
+            emit('showHand', hand)
+            socketio.emit('discardTileHand', player, room=roomID)
+            if sT == 'win':
+                socketio.emit('showWin', (tile, sO), room=playerSid)
+            elif len(sO) > 0:
+                socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+            else:
+                loc = sT
+                socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
+                draw(roomID, game)
 
 
 @socketio.on('winChoice')
@@ -242,33 +241,34 @@ def winChoice(roomID, winInd):
         room = Room.query.filter_by(roomID=roomID).first()
         user = User.query.filter_by(username=current_user.username).first()
         if user is not None and room is not None:
-            if user.in_room == roomID:
-                players = room.players.all()
-                userInd = user.order
-                game = MJgame(in_dict=room.load_JSON())
-                try:
-                    player, tile, sT, sO = game.playerWin(userInd, winInd)
-                except(ValueError, IndexError):
-                    return
-                room.set_JSON(game)
-                db.session.commit()
-                for i in players:
-                    if i.order == player:
-                        playerSid = i.player_sid
-                        playerName = i.username
-                if winInd > 0 and isinstance(sT, dict):
-                    p = [[key, value] for key, value in sT.items() if value > 0]
-                    p = list(map(list, zip(*p)))
-                    socketio.emit('playerWin', (playerName, tile, sO, p[0], p[1]),
-                                  room=roomID)
-                elif sT == 'win':
-                    socketio.emit('showWin', (tile, sO), room=playerSid)
-                elif len(sO) > 0:
-                    socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
-                else:
-                    loc = sT
-                    socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
-                    draw(roomID, game)
+            if user.in_room != roomID:
+                raise ValueError('player not in room')
+            userInd = user.order
+            game = MJgame(in_dict=room.load_JSON())
+            try:
+                player, tile, sT, sO = game.playerWin(userInd, winInd)
+            except(ValueError, IndexError):
+                return
+            room.set_JSON(game)
+            db.session.commit()
+            if player is None:
+                return
+            player_q = room.players.filter_by(order=player).first()
+            playerSid = player_q.player_sid
+            playerName = player_q.username
+            if winInd > 0 and isinstance(sT, dict):
+                p = [[key, value] for key, value in sT.items() if value > 0]
+                p = list(map(list, zip(*p)))
+                socketio.emit('playerWin', (playerName, tile, sO, p[0], p[1]),
+                              room=roomID)
+            elif sT == 'win':
+                socketio.emit('showWin', (tile, sO), room=playerSid)
+            elif len(sO) > 0:
+                socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+            else:
+                loc = sT
+                socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
+                draw(roomID, game)
 
 
 @socketio.on('optChoice')
@@ -278,57 +278,55 @@ def optChoice(roomID, setInd):
         room = Room.query.filter_by(roomID=roomID).first()
         user = User.query.filter_by(username=current_user.username).first()
         if user is not None and room is not None:
-            if user.in_room == roomID:
-                players = room.players.all()
-                userInd = user.order
-                game = MJgame(in_dict=room.load_JSON())
-                try:
-                    player, tile, sT, sO = game.act(userInd, setInd)
-                except(ValueError, IndexError, TypeError):
-                    return
-                room.set_JSON(game)
-                db.session.commit()
-                if setInd == 0 and len(sO) == 0:
-                    loc = sT
-                    socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
+            if user.in_room != roomID:
+                raise ValueError('player not in room')
+            userInd = user.order
+            game = MJgame(in_dict=room.load_JSON())
+            #try:
+            player, tile, sT, sO = game.act(userInd, setInd)
+            #except(ValueError, IndexError):
+            #    return
+            room.set_JSON(game)
+            db.session.commit()
+            if player is None:
+                return
+            player_q = room.players.filter_by(order=player).first()
+            playerSid = player_q.player_sid
+            if setInd == 0 and len(sO) == 0:
+                loc = sT
+                socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
+                draw(roomID, game)
+            elif setInd == 0:
+                socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+            else:
+                loc, newSet = sT, sO
+                hand = game.showHand(userInd)
+                emit('showHand', hand)
+                handSize = len(hand)
+                if len(newSet) == 4:
                     draw(roomID, game)
-                elif setInd == 0:
-                    for i in players:
-                        if i.order == player:
-                            playerSid = i.player_sid
-                    socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+                if loc is None:
+                    playerSets = game.showSets(p=userInd)
+                    socketio.emit('drawPlayerSet', (player, playerSets),
+                                  room=roomID)
                 else:
-                    loc, newSet = sT, sO
-                    hand = game.showHand(userInd)
-                    emit('showHand', hand)
-                    handSize = len(hand)
-                    if len(newSet) == 4:
-                        draw(roomID, game)
-                    if loc is None:
-                        playerSets = game.showSets(p=userInd)
-                        socketio.emit('drawPlayerSet', (player, playerSets),
-                                      room=roomID)
-                    else:
-                        socketio.emit('addSet', (player, loc, newSet), room=roomID)
-                    socketio.emit('oneHand', (player, handSize), room=roomID)
+                    socketio.emit('addSet', (player, loc, newSet), room=roomID)
+                socketio.emit('oneHand', (player, handSize), room=roomID)
 
 
 def draw(roomID, game):
+    tilesLeft = game.tilesLeft()
     tile, player, winBool, gongBool = game.draw()
     room = Room.query.filter_by(roomID=roomID).first()
     room.set_JSON(game)
     db.session.commit()
-    if tile is None and player is None:
+    player_q = room.players.filter_by(order=player).first()
+    playerSid = player_q.player_sid
+    if tile is None and player is None or tilesLeft < 0:
         socketio.emit('gameDraw', room=roomID)
         return
-    players = room.players.all()
-    for i in players:
-        if i.order == player:
-            playerSid = i.player_sid
-            if playerSid is not None:
-                socketio.emit('playerDraw', tile, room=playerSid)
-            socketio.emit('blindDraw', player, room=roomID)
-            break
+    socketio.emit('playerDraw', tile, room=playerSid)
+    socketio.emit('blindDraw', (player, tilesLeft),  room=roomID)
     if winBool:
         sets = game.setDict[player]
         fullHand = [tile for eachSet in sets for tile in eachSet]\

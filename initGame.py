@@ -136,7 +136,6 @@ class MJgame():
         self.sO = [[[int(eTile) for i in range(3)]
                     for eTile in np.append(self.addGong, self.darkGong)]]
         self.gongBool = self.addGong + self.darkGong
-        print(self.gongBool)
         return(tile, player, self.winBool, self.gongBool)
 
     def handSizes(self, player):
@@ -148,6 +147,9 @@ class MJgame():
 
     def showDiscards(self):
         return(self.discPile)
+
+    def tilesLeft(self):
+        return(len(self.deck) - self.deckLoc - 1)
 
     def showSets(self, p=None):
         if p is None:
@@ -163,6 +165,7 @@ class MJgame():
         """
         if not (self.turn == player and len(self.actionInd) == 0 and
                 len(self.handDict[player]) % 3 == 2):
+            print(self.turn, player, self.actionInd)
             raise ValueError('not this players turn')
         self.gongBool, self.winBool, self.addGong = [], False, []
         tile = self.handDict[player][tileInd]
@@ -205,10 +208,14 @@ class MJgame():
         """
         ind = self.actionInd[0]
         playerAction = (self.turn + ind) % 4
+        print('gongbool = {}'.format(self.gongBool))
         if player != playerAction:
             raise ValueError('not this players turn')
         if setInd == 0 and len(self.gongBool) > 0:
+            print('ignore gong')
             self.actionInd = []
+            self.sT = []
+            self.sO = []
             self.gongBool = []
             self.addGong = []
             self.darkGong = []
@@ -267,7 +274,6 @@ class MJgame():
             check = (i+player) % 4
             hand = self.handDict[check]
             if self.checkPlayerWin(check):
-                print('player {} can win'.format(check))
                 self.winPlayer.append(check)
             uniq, count = np.unique(hand, return_counts=True)
             if count[uniq == tile] >= 2:

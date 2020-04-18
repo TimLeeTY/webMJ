@@ -213,10 +213,10 @@ def discardTile(tile, roomID):
                 raise ValueError('player not in room')
             userInd = user.order
             game = MJgame(in_dict=room.load_JSON())
-            # try:
-            player, tile, sT, sO = game.discard(tile, userInd)
-            # except ValueError:
-            #    return
+            try:
+                player, tile, sT, sO = game.discard(tile, userInd)
+            except ValueError:
+                return
             room.set_JSON(game)
             db.session.commit()
             player_q = room.players.filter_by(order=player).first()
@@ -282,10 +282,10 @@ def optChoice(roomID, setInd):
                 raise ValueError('player not in room')
             userInd = user.order
             game = MJgame(in_dict=room.load_JSON())
-            #try:
-            player, tile, sT, sO = game.act(userInd, setInd)
-            #except(ValueError, IndexError):
-            #    return
+            try:
+                player, tile, sT, sO = game.act(userInd, setInd)
+            except(ValueError, IndexError):
+                return
             room.set_JSON(game)
             db.session.commit()
             if player is None:

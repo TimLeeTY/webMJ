@@ -24,6 +24,7 @@ Deployed on [Heroku](https://web-mj.herokuapp.com)!
 ## TODO:
 - Other players' tiles not displaying properly after set event
 - Implement 'addgong' check to every turn  *(added, needs testing)*
+    - Current 'addgong' dialogue lingers after win event, need to reset
 - Handle win events:
   - ~~(calculate points for winner)~~
   - ~~*Show winning points on client side~~

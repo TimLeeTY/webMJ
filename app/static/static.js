@@ -20,6 +20,7 @@ function setInitial(){
     var winBtn = document.getElementById('WinButton0')
     winBtn.addEventListener('click', function(){
         socket.emit('winChoice', roomID, 1)
+        hideChoices();
         hideWin() });
     var ignorebtn=document.getElementById('ignorebutton');
     ignorebtn.addEventListener('click', function(){
@@ -31,7 +32,8 @@ function setInitial(){
         hideWin() });
     var hideWinbtn=document.getElementById('hideWinButton');
     hideWinbtn.addEventListener('click', function(){;
-        hideWin()
+        hideChoices();
+        hideWin();
         socket.emit('connected_to_game', roomID); });
         
     var leaveButton = document.getElementById('leaveRoom');

@@ -59,7 +59,7 @@ class MJgame():
         self.discTile = None
         self.gongBool = []
         self.winBool = False
-        # shuffle(self.deck)
+        shuffle(self.deck)
         handSize = 13
         self.deckLoc = handSize*4+1
         hands = []

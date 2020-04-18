@@ -15,7 +15,6 @@ class MJgame():
             self.deck = [i for i in range(34) for j in range(4)]
             if flowers:
                 self.deck += [i+34 for i in range(4) for j in range(2)]
-            shuffle(self.deck)
             self.start = 0
             self.wind = 0
             self.dealTiles()
@@ -60,7 +59,7 @@ class MJgame():
         self.discTile = None
         self.gongBool = []
         self.winBool = False
-        shuffle(self.deck)
+        # shuffle(self.deck)
         handSize = 13
         self.deckLoc = handSize*4+1
         hands = []
@@ -128,7 +127,7 @@ class MJgame():
         if self.winBool:
             self.winPlayer = [player]
         # Do add gong and dark gong logic
-        self.addGong = [checkTile for x in sets for checkTile in uniq
+        self.addGong = [int(checkTile) for x in sets for checkTile in uniq
                         if np.array_equal(x, [int(checkTile) for i in range(3)])]
         self.darkGong = [int(i) for i in uniq[count == 4]]
         self.actionInd = [0] if len(self.addGong) + len(self.darkGong) > 0 else []
@@ -137,6 +136,7 @@ class MJgame():
         self.sO = [[[int(eTile) for i in range(3)]
                     for eTile in np.append(self.addGong, self.darkGong)]]
         self.gongBool = self.addGong + self.darkGong
+        print(self.gongBool)
         return(tile, player, self.winBool, self.gongBool)
 
     def handSizes(self, player):
@@ -180,17 +180,20 @@ class MJgame():
         else:
             discTile = self.discTile
         if len(self.winPlayer) > 0:
+            # return win option
             player = self.winPlayer[0]
             sets = self.setDict[player]
             fullHand = [tile for eachSet in sets for tile in eachSet]\
                 + self.handDict[player]
             return(player, discTile, 'win', fullHand)
         elif len(self.actionInd) > 0:
+            # return action list
             ind = self.actionInd[0]
             playerAction = (self.turn + ind) % 4
             sT, sO = self.sT[ind], self.sO[ind]
             return(playerAction, discTile, sT, sO)
         else:
+            # show discarded tile and associated player
             player = (self.turn - 1) % 4
         return(player, discTile, len(self.discPile[player]) - 1, [])
 
@@ -205,7 +208,11 @@ class MJgame():
         if player != playerAction:
             raise ValueError('not this players turn')
         if setInd == 0 and len(self.gongBool) > 0:
-            return(None)
+            self.actionInd = []
+            self.gongBool = []
+            self.addGong = []
+            self.darkGong = []
+            return(None, None, None, None)
         elif setInd == 0:
             self.actionInd.pop(0)
             return(self.action())
@@ -242,7 +249,7 @@ class MJgame():
             self.winPlayer.pop()
             return(self.action())
         else:
-            return(None)
+            return(None, None, None, None)
 
     def decideOpt(self, tile):
         """
@@ -385,9 +392,9 @@ class MJgame():
         pointDict = {
             'Common': 1 if all(setType == 'run' for setType in types) else 0,
             'All in Triplets': 3 if
-            all(setType in ('pong', 'kong') for setType in types) else 0,
+            all(setType in ('pong', 'gong') for setType in types) else 0,
             'All Kong': 13 if
-            all(setType == 'kong' for setType in types) else 0,
+            all(setType == 'gong' for setType in types) else 0,
             'Orphans': 7 if all(s[0] % 9 in (0, 8) and s[0] // 9 < 3 and s[0] == s[1]
                                 for s in sets) else 0,
             'Mized Orphans': 1 if

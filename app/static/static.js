@@ -88,18 +88,13 @@ function drawHands(handSizes){
 }
 
 function drawDiscards(tiles, player){
-    if (tiles.length == 0){
-        for (var t=0; t<22; t++){
-            var tile;
-            tile=document.getElementById('discard-'+player+'-'+t);
-            tile.style.backgroundImage = "none"
-            tile.style.visibility = "hidden"
-        }
-    }
-    else{
-        for (var t=0; t<tiles.length; t++){
-            var tile=document.getElementById('discard-'+player+'-'+t);
+    for (var t=0; t<22; t++){
+        var tile=document.getElementById('discard-'+player+'-'+t);
+        if( t<tiles.length; t++){
             drawTile(tile, tiles[t])
+        }
+        else {
+            undrawTile(tile, tiles[t])
         }
     }
 }

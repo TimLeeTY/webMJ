@@ -213,10 +213,10 @@ def discardTile(tile, roomID):
                 players = room.players.all()
                 userInd = user.order
                 game = MJgame(in_dict=room.load_JSON())
-                try:
-                    player, tile, sT, sO = game.discard(tile, userInd)
-                except ValueError:
-                    return
+                # try:
+                player, tile, sT, sO = game.discard(tile, userInd)
+                # except ValueError:
+                    # return
                 room.set_JSON(game)
                 db.session.commit()
                 hand = game.showHand(userInd)
@@ -284,7 +284,7 @@ def optChoice(roomID, setInd):
                 game = MJgame(in_dict=room.load_JSON())
                 try:
                     player, tile, sT, sO = game.act(userInd, setInd)
-                except(ValueError, IndexError):
+                except(ValueError, IndexError, TypeError):
                     return
                 room.set_JSON(game)
                 db.session.commit()

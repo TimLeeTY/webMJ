@@ -195,7 +195,7 @@ function oneHand(player, size){
 }
 
 function chooseDiscard(tile){
-    socket.emit('discardTile', tile, roomID)
+    socket.emit('discardTile', roomID, tile)
     // emit choice to server
 }
 

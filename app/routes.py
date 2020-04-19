@@ -7,6 +7,7 @@ from app.models import User, Room
 from werkzeug.urls import url_parse
 from random import choices
 from string import ascii_uppercase
+import functools
 from initGame import MJgame
 
 
@@ -143,175 +144,163 @@ def joinRoom(roomID):
     return(redirect(url_for('room', roomID=roomID)))
 
 
+def authentication_required(func):
+    """
+    wrapper for socketio events to authenticate that:
+    1. The user is logged in;
+    2. The user belongs to the room it claims to be in
+    """
+    @functools.wraps(func)
+    def wrapped(roomID, *args, **kwargs):
+        roomID = roomID.upper()
+        room = Room.query.filter_by(roomID=roomID).first()
+        if current_user.is_authenticated and room is not None:
+            user = User.query.filter_by(username=current_user.username).first()
+            if user is not None and user.in_room == roomID:
+                return(func(roomID, user, room, *args, **kwargs))
+        socketio.disconnect()
+
+    return(wrapped)
+
+
 @socketio.on('connected_to_lobby')
-def connectLobby(roomID):
-    roomID = roomID.upper()
-    room = Room.query.filter_by(roomID=roomID).first()
-    if current_user.is_authenticated and room is not None:
-        user = User.query.filter_by(username=current_user.username).first()
-        if user is not None and user.in_room == roomID:
-            join_room(roomID)
-            user.player_sid = request.sid
-            db.session.commit()
+@authentication_required
+def connectLobby(roomID, user):
+    join_room(roomID)
+    user.player_sid = request.sid
+    db.session.commit()
 
 
 @socketio.on('lobby_ready')
-def lobbyReady(roomID, ready_bool):
-    roomID = roomID.upper()
-    room = Room.query.filter_by(roomID=roomID).first()
-    if current_user.is_authenticated and room is not None:
-        user = User.query.filter_by(username=current_user.username).first()
-        if user is not None and user.in_room == roomID:
-            user.ready = ready_bool
-            db.session.commit()
-            socketio.emit('playerReady', (user.order, ready_bool), room=roomID)
+@authentication_required
+def lobbyReady(roomID, user, ready_bool):
+    user.ready = ready_bool
+    db.session.commit()
+    socketio.emit('playerReady', (user.order, ready_bool), room=roomID)
 
 
 @socketio.on('connected_to_game')
-def connectGame(roomID):
-    if current_user.is_authenticated:
-        roomID = roomID.upper()
-        room = Room.query.filter_by(roomID=roomID).first()
-        user = User.query.filter_by(username=current_user.username).first()
-        if user is not None and room is not None:
-            if user.in_room == roomID:
-                join_room(roomID)
-                user.player_sid = request.sid
-                db.session.commit()
-                game = MJgame(in_dict=room.load_JSON())
-                players = ['', '', '', '']
-                players_q = room.players.all()
-                for player in players_q:
-                    players[player.order] = player.username
-                userInd = user.order
-                hand = game.showHand(userInd)
-                emit('initialise', (players, (userInd-game.start) % 4,
-                                    game.turn, userInd, game.wind, game.tilesLeft()))
-                emit('showHand', hand)
-                emit('drawDiscards', game.showDiscards())
-                emit('drawSets', game.showSets())
-                emit('drawHands', game.handSizes(userInd))
-                try:
-                    player, tile, sT, sO = game.action()
-                    if player == userInd:
-                        if sT == 'win':
-                            emit('showWin', (tile, sO))
-                        elif len(sO) > 0:
-                            emit('showChoices', (tile, sT, sO))
-                except(ValueError, TypeError, AttributeError):
-                    return
+@authentication_required
+def connectGame(roomID, user, room):
+    join_room(roomID)
+    user.player_sid = request.sid
+    db.session.commit()
+    game = MJgame(in_dict=room.load_JSON())
+    players = ['', '', '', '']
+    players_q = room.players.all()
+    for player in players_q:
+        players[player.order] = player.username
+    userInd = user.order
+    hand = game.showHand(userInd)
+    emit('initialise', (players, (userInd-game.start) % 4,
+                        game.turn, userInd, game.wind, game.tilesLeft()))
+    emit('showHand', hand)
+    emit('drawDiscards', game.showDiscards())
+    emit('drawSets', game.showSets())
+    emit('drawHands', game.handSizes(userInd))
+    try:
+        player, tile, sT, sO = game.action()
+        if player == userInd:
+            if sT == 'win':
+                emit('showWin', (tile, sO))
+            elif len(sO) > 0:
+                emit('showChoices', (tile, sT, sO))
+    except(ValueError, TypeError, AttributeError):
+        return
 
 
 @socketio.on('discardTile')
-def discardTile(tile, roomID):
-    if current_user.is_authenticated:
-        roomID = roomID.upper()
-        room = Room.query.filter_by(roomID=roomID).first()
-        user = User.query.filter_by(username=current_user.username).first()
-        if user is not None and room is not None:
-            if user.in_room != roomID:
-                raise ValueError('player not in room')
-            userInd = user.order
-            game = MJgame(in_dict=room.load_JSON())
-            try:
-                player, tile, sT, sO = game.discard(tile, userInd)
-            except ValueError:
-                return
-            room.set_JSON(game)
-            db.session.commit()
-            player_q = room.players.filter_by(order=player).first()
-            playerSid = player_q.player_sid
-            hand = game.showHand(userInd)
-            emit('showHand', hand)
-            socketio.emit('discardTileHand', player, room=roomID)
-            if sT == 'win':
-                socketio.emit('showWin', (tile, sO), room=playerSid)
-            elif len(sO) > 0:
-                socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
-            else:
-                loc = sT
-                socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
-                draw(roomID, game)
+@authentication_required
+def discardTile(roomID, user, room, tile):
+    userInd = user.order
+    game = MJgame(in_dict=room.load_JSON())
+    try:
+        player, tile, sT, sO = game.discard(tile, userInd)
+    except ValueError:
+        return
+    room.set_JSON(game)
+    db.session.commit()
+    player_q = room.players.filter_by(order=player).first()
+    playerSid = player_q.player_sid
+    hand = game.showHand(userInd)
+    emit('showHand', hand)
+    socketio.emit('discardTileHand', player, room=roomID)
+    if sT == 'win':
+        socketio.emit('showWin', (tile, sO), room=playerSid)
+    elif len(sO) > 0:
+        socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+    else:
+        loc = sT
+        socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
+        draw(roomID, game)
 
 
 @socketio.on('winChoice')
-def winChoice(roomID, winInd):
-    if current_user.is_authenticated:
-        roomID = roomID.upper()
-        room = Room.query.filter_by(roomID=roomID).first()
-        user = User.query.filter_by(username=current_user.username).first()
-        if user is not None and room is not None:
-            if user.in_room != roomID:
-                raise ValueError('player not in room')
-            userInd = user.order
-            game = MJgame(in_dict=room.load_JSON())
-            try:
-                player, tile, sT, sO = game.playerWin(userInd, winInd)
-            except(ValueError, IndexError):
-                return
-            room.set_JSON(game)
-            db.session.commit()
-            if player is None:
-                return
-            player_q = room.players.filter_by(order=player).first()
-            playerSid = player_q.player_sid
-            playerName = player_q.username
-            if winInd > 0 and isinstance(sT, dict):
-                p = [[key, value] for key, value in sT.items() if value > 0]
-                p = list(map(list, zip(*p)))
-                socketio.emit('playerWin', (playerName, tile, sO, p[0], p[1]),
-                              room=roomID)
-            elif sT == 'win':
-                socketio.emit('showWin', (tile, sO), room=playerSid)
-            elif len(sO) > 0:
-                socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
-            else:
-                loc = sT
-                socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
-                draw(roomID, game)
+@authentication_required
+def winChoice(roomID, user, room, winInd):
+    userInd = user.order
+    game = MJgame(in_dict=room.load_JSON())
+    try:
+        player, tile, sT, sO = game.playerWin(userInd, winInd)
+    except(ValueError, IndexError):
+        return
+    room.set_JSON(game)
+    db.session.commit()
+    if player is None:
+        return
+    player_q = room.players.filter_by(order=player).first()
+    playerSid = player_q.player_sid
+    playerName = player_q.username
+    if winInd > 0 and isinstance(sT, dict):
+        p = [[key, value] for key, value in sT.items() if value > 0]
+        p = list(map(list, zip(*p)))
+        socketio.emit('playerWin', (playerName, tile, sO, p[0], p[1]),
+                      room=roomID)
+    elif sT == 'win':
+        socketio.emit('showWin', (tile, sO), room=playerSid)
+    elif len(sO) > 0:
+        socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+    else:
+        loc = sT
+        socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
+        draw(roomID, game)
 
 
 @socketio.on('optChoice')
-def optChoice(roomID, setInd):
-    if current_user.is_authenticated:
-        roomID = roomID.upper()
-        room = Room.query.filter_by(roomID=roomID).first()
-        user = User.query.filter_by(username=current_user.username).first()
-        if user is not None and room is not None:
-            if user.in_room != roomID:
-                raise ValueError('player not in room')
-            userInd = user.order
-            game = MJgame(in_dict=room.load_JSON())
-            try:
-                player, tile, sT, sO = game.act(userInd, setInd)
-            except(ValueError, IndexError):
-                return
-            room.set_JSON(game)
-            db.session.commit()
-            if player is None:
-                return
-            player_q = room.players.filter_by(order=player).first()
-            playerSid = player_q.player_sid
-            if setInd == 0 and len(sO) == 0:
-                loc = sT
-                socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
-                draw(roomID, game)
-            elif setInd == 0:
-                socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
-            else:
-                loc, newSet = sT, sO
-                hand = game.showHand(userInd)
-                emit('showHand', hand)
-                handSize = len(hand)
-                if len(newSet) == 4:
-                    draw(roomID, game)
-                if loc is None:
-                    playerSets = game.showSets(p=userInd)
-                    socketio.emit('drawPlayerSet', (player, playerSets),
-                                  room=roomID)
-                else:
-                    socketio.emit('addSet', (player, loc, newSet), room=roomID)
-                socketio.emit('oneHand', (player, handSize), room=roomID)
+@authentication_required
+def optChoice(roomID, user, room, setInd):
+    userInd = user.order
+    game = MJgame(in_dict=room.load_JSON())
+    try:
+        player, tile, sT, sO = game.act(userInd, setInd)
+    except(ValueError, IndexError):
+        return
+    room.set_JSON(game)
+    db.session.commit()
+    if player is None:
+        return
+    player_q = room.players.filter_by(order=player).first()
+    playerSid = player_q.player_sid
+    if setInd == 0 and len(sO) == 0:
+        loc = sT
+        socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
+        draw(roomID, game)
+    elif setInd == 0:
+        socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
+    else:
+        loc, newSet = sT, sO
+        hand = game.showHand(userInd)
+        emit('showHand', hand)
+        handSize = len(hand)
+        if len(newSet) == 4:
+            draw(roomID, game)
+        if loc is None:
+            playerSets = game.showSets(p=userInd)
+            socketio.emit('drawPlayerSet', (player, playerSets),
+                          room=roomID)
+        else:
+            socketio.emit('addSet', (player, loc, newSet), room=roomID)
+        socketio.emit('oneHand', (player, handSize), room=roomID)
 
 
 def draw(roomID, game):
@@ -347,15 +336,6 @@ def leaveLobby(roomID):
 @app.route('/room/<roomID>/leave')
 @login_required
 def leaveRoom(roomID):
-    roomID = roomID.upper()
-    room = Room.query.filter_by(roomID=roomID).first()
-    if room is None:
-        flash('room {} does not exist'.format(roomID))
-        return(redirect(url_for('index')))
-    user = User.query.filter_by(username=current_user.username).first()
-    if user.in_room != roomID:
-        flash('you are not in room {}'.format(roomID))
-        return(redirect(url_for('index')))
     try:
         if room.owner_id == user.id:
             return(redirect(url_for('closeRoom', roomID=roomID)))

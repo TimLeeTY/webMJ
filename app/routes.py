@@ -165,7 +165,7 @@ def authentication_required(func):
 
 @socketio.on('connected_to_lobby')
 @authentication_required
-def connectLobby(roomID, user):
+def connectLobby(roomID, user, room):
     join_room(roomID)
     user.player_sid = request.sid
     db.session.commit()
@@ -173,7 +173,7 @@ def connectLobby(roomID, user):
 
 @socketio.on('lobby_ready')
 @authentication_required
-def lobbyReady(roomID, user, ready_bool):
+def lobbyReady(roomID, user, room, ready_bool):
     user.ready = ready_bool
     db.session.commit()
     socketio.emit('playerReady', (user.order, ready_bool), room=roomID)
@@ -336,6 +336,15 @@ def leaveLobby(roomID):
 @app.route('/room/<roomID>/leave')
 @login_required
 def leaveRoom(roomID):
+    roomID = roomID.upper()
+    room = Room.query.filter_by(roomID=roomID).first()
+    if room is None:
+        flash('room {} does not exist'.format(roomID))
+        return(redirect(url_for('index')))
+    user = User.query.filter_by(username=current_user.username).first()
+    if user.in_room != roomID:
+        flash('you are not in room {}'.format(roomID))
+        return(redirect(url_for('index')))
     try:
         if room.owner_id == user.id:
             return(redirect(url_for('closeRoom', roomID=roomID)))

@@ -246,6 +246,8 @@ class MJgame():
             else:
                 discTile = self.discTile
             fullHand.remove(discTile)
+            if len(maxPoints) == 0:
+                maxPoints = [['chicken win', 0]]
             if player != self.start:
                 if self.start == 3:
                     self.wind = (self.wind + 1) % 4

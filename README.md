@@ -23,13 +23,17 @@ Deployed on [Heroku](https://web-mj.herokuapp.com)!
 
 ## TODO:
 - Other players' tiles not displaying properly after set event
-- Implement 'addgong' check to every turn  *(added, needs testing)*
-    - Current 'addgong' dialogue lingers after win event, need to reset
+<!-- - Implement 'addgong' check to every turn  *(added, needs testing)* -->
+    <!-- - Current 'addgong' dialogue lingers after win event, need to reset -->
 - Handle win events:
-  - ~~(calculate points for winner)~~
-  - ~~*Show winning points on client side~~
+  <!-- - ~~(calculate points for winner)~~ -->
+  <!-- - ~~*Show winning points on client side~~ -->
   - Add overall point/score tally
+    - Log player that discarded winning tile,
+    - Handle 'self-draw' events separately
+    - Logic for self-draw penalties (e.g. after a player shows 4 sets)
+  - Only allow wins that fulfill some minimum score
 - Add indicators for actions taken
-- Logic to handle running out of tiles *(added, needs testing)*
+<!-- - Logic to handle running out of tiles *(added, needs testing)* -->
 - Add flowers
-- Add screenshots to readme
+<!-- - Add screenshots to readme -->

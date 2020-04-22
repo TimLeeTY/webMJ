@@ -215,24 +215,20 @@ def discardTile(roomID, user, room, tile):
     userInd = user.order
     game = MJgame(in_dict=room.load_JSON())
     try:
-        player, tile, sT, sO = game.discard(tile, userInd)
+        actDict = game.discard(tile, userInd)
     except ValueError:
         return
     room.set_JSON(game)
     db.session.commit()
+    player = actDict['player']
     player_q = room.players.filter_by(order=player).first()
     playerSid = player_q.player_sid
     hand = game.showHand(userInd)
     emit('showHand', hand)
     socketio.emit('discardTileHand', player, room=roomID)
-    if sT == 'win':
-        socketio.emit('showWin', (tile, sO), room=playerSid)
-    elif len(sO) > 0:
-        socketio.emit('showChoices', (tile, sT, sO), room=playerSid)
-    else:
-        loc = sT
-        socketio.emit('discardTileDisp', (tile, player, loc), room=roomID)
-        draw(roomID, game)
+    room = roomID if actDict['message'] == 'discardTileDisp' else playerSid
+    socketio.emit(actDict['message'], actDict['args'], room=room)
+    draw(roomID, game)
 
 
 @socketio.on('winChoice')

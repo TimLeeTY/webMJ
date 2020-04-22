@@ -37,3 +37,4 @@ Deployed on [Heroku](https://web-mj.herokuapp.com)!
 <!-- - Logic to handle running out of tiles *(added, needs testing)* -->
 - Add flowers
 <!-- - Add screenshots to readme -->
+- Add username to win message in JavaScript

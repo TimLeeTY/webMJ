@@ -101,7 +101,7 @@ class MJgame():
         self.setDict[player].append(newSet)
         playerSets = self.setDict[player]
         self.actionInd = []
-        return(player, playerSets)
+        return(player, playerSets, self.typeDict[player][-1])
 
     def draw(self):
         """
@@ -113,7 +113,7 @@ class MJgame():
         if self.deckLoc == len(self.deck):
             self.start = (self.start+1) % 4
             self.dealTiles()
-            return(None, None, False, False)
+            return(None)
         player = self.turn
         tile = self.deck[self.deckLoc]
         self.deckLoc += 1
@@ -132,7 +132,6 @@ class MJgame():
             actList.append({
                 'message': 'showWin',
                 'args': (tile, fullHand),
-                'player': player,
             })
         # Do add gong and dark gong logic
         self.addGong = [int(checkTile) for x in sets for checkTile in uniq
@@ -147,11 +146,11 @@ class MJgame():
         if len(self.gongBool) > 0:
             actList.append({
                 'message': 'showChoices',
-                'player':  player,
                 'args': (self.gongBool, self.sT[0], self.sO[0]),
             })
         drawDict = {
             'tile': tile,
+            'tilesLeft': self.tilesLeft(),
             'player': player,
             'actionList': actList,
         }
@@ -194,11 +193,11 @@ class MJgame():
         self.turn = (self.turn + 1) % 4
         return(self.decideOpt(tile))
 
-    def action(self):
+    def action(self, player_in=None):
         """Returns the next action to be taken based on game state """
         actDict = {}
         discTile = self.gongBool if len(self.gongBool) > 0 else self.discTile
-        if len(self.winPlayer) > 0:
+        if len(self.winPlayer) > 0 and player_in in (None, self.winPlayer[0]):
             # return win option
             player = self.winPlayer[0]
             sets = self.setDict[player]
@@ -207,20 +206,22 @@ class MJgame():
             actDict['message'] = 'showWin'
             actDict['args'] = (discTile, fullHand)
             actDict['player'] = player
-        elif len(self.actionInd) > 0:
+        elif len(self.actionInd) > 0 and \
+                player_in in (None, (self.turn + self.actionInd[0]) % 4):
             # return action list
             ind = self.actionInd[0]
             sT, sO = self.sT[ind], self.sO[ind]
             actDict['message'] = 'showCHoices'
             actDict['args'] = (discTile, sT, sO)
             actDict['player'] = (self.turn + ind) % 4
-        else:
+        elif player_in is None:
             # show discarded tile and associated player
             loc = len(self.discPile[player]) - 1
             player = (self.turn - 1) % 4
             actDict['message'] = 'discardTileDisp'
             actDict['args'] = (discTile, player, loc)
             actDict['player'] = player
+            actDict['draw'] = self.draw()
         return(actDict)
 
     def act(self, player, setInd):
@@ -247,12 +248,14 @@ class MJgame():
         else:
             newSet = self.sO[ind][setInd-1]
             newType = self.sT[ind][setInd-1]
-            player, playerSets = self.addSet(player, newSet, newType)
+            player, playerSets, newType = self.addSet(player, newSet, newType)
             actDict = {
                 'player': player,
                 'args': (player, playerSets),
                 'message': 'drawPlayerSet',
             }
+            if newType == 'gong':
+                actDict['draw'] = self.draw()
             return(actDict)
 
     def playerWin(self, player, winInd):
@@ -274,12 +277,19 @@ class MJgame():
             fullHand.remove(discTile)
             if len(maxPoints) == 0:
                 maxPoints = [['chicken win', 0]]
+            p = [[key, value] for key, value in maxPoints.items() if value > 0]
+            p = list(map(list, zip(*p)))
             if player != self.start:
                 if self.start == 3:
                     self.wind = (self.wind + 1) % 4
                 self.start = (self.start + 1) % 4
             self.dealTiles()
-            return(player, discTile, maxPoints, fullHand)
+            actDict = {
+                'message': 'playerWin',
+                'args': (player, discTile, fullHand, p[0], p[1]),
+                'player': player,
+            }
+            return(actDict)
         elif winInd == 0 and not self.winBool:
             self.winPlayer.pop()
             return(self.action())
@@ -311,15 +321,9 @@ class MJgame():
                     sT[i].append('gong')
                     sO[i].append([tile for i in range(3)])
             if i == 0 and s < 3:
-                for j in (-2, 1):
-                    if 0 <= v+j and v+j < 8:
-                        pair = [tile+i+j for i in range(2)]
-                        if all(i in uniq for i in pair):
-                            sO[0].append(pair)
-                            sT[0].append('run')
-                if v != 0 and v != 8:
-                    pair = [tile - 1, tile + 1]
-                    if all(i in uniq for i in pair):
+                pairs = [(v-2, v-1), (v-1, v+1), (v+1, v+2)]
+                for pair in pairs:
+                    if all(j in uniq and 0 <= j < 9 for j in pair):
                         sO[0].append(pair)
                         sT[0].append('run')
         self.sT, self.sO = sT, sO

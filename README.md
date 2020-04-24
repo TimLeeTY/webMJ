@@ -33,7 +33,7 @@ Deployed on [Heroku](https://web-mj.herokuapp.com)!
     - Handle 'self-draw' events separately
     - Logic for self-draw penalties (e.g. after a player shows 4 sets)
   - Only allow wins that fulfill some minimum score
-- Add indicators for actions taken
+- Action indicators needs more stylizing 
 - Add flowers
 <!-- - Logic to handle running out of tiles *(added, needs testing)* -->
 <!-- - Add screenshots to readme -->

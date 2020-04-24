@@ -147,12 +147,17 @@ function draw(player){
 }
 
 function discardTileDisp(newTile, player, loc){
-    var discTile
+    var discTile;
     discTile=document.getElementById('discard-'+player+'-'+loc);
-    drawTile(discTile, newTile)
+    drawTile(discTile, newTile);
+    var tile;
+    tile=document.getElementById('hand-'+player+'-0');
+    tile.style.backgroundImage = "none";
+    tile.style.visibility = "hidden"
 }
 
 function discardTileHand(player){
+    console.log(playerList[player]+' discards a tile')
     var tile;
     tile=document.getElementById('hand-'+player+'-0');
     tile.style.backgroundImage = "none";
@@ -377,11 +382,11 @@ var playerOrder
 var tileDict = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [3, 1], [3, 2], [3, 3], [3, 4], [4, 1], [4, 2], [4, 3]]
 var suitLabel = ['Dots', 'Bamboo', 'Numbers']
 var honorLabel = [['East', 'South', 'West', 'North'], ['Red', 'Green', 'White']]
+var playerList = ['', '', '', ''];
 
 socket.on('initialise', function(players, pos, whoseTurn, order, currentWind, tiles){
     var wind = ['east', 'south', 'west', 'north'];
     var windList = ['', '', '', ''];
-    var playerList = ['', '', '', ''];
     dealer = players[0]
     playerOrder = order
     whoseTurn = (whoseTurn - order + 4) %4
@@ -414,6 +419,7 @@ socket.on('discardTileDisp', function(newTile, player, loc){
 });
 
 socket.on('discardTileHand', function(player){
+    console.log('discard Tile Hand')
     player = (player - playerOrder + 4) % 4 ;
     discardTileHand(player);
 });
@@ -439,6 +445,7 @@ socket.on('drawSets', function(setDict){
 socket.on('drawPlayerSet', function(player, sets){
     player = (player -  playerOrder + 4) % 4 ;
     drawSets(sets, player);;
+    whoseTurn(player);
 });
 
 socket.on('playerDraw', function(tile){
@@ -470,8 +477,10 @@ socket.on('showWin', function(tile, hand){
     showWin(tile, hand)
 });
 
-socket.on('playerWin', function(playerName, tile, hand, pointKey, pointValue){
+socket.on('playerWin', function(player, tile, hand, pointKey, pointValue){
+    player = (player -  playerOrder + 4) % 4 ;
     hideWin()
+    playerName = playerList[player]
     playerWin(playerName, tile, hand, pointKey, pointValue)
 });
 

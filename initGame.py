@@ -99,7 +99,7 @@ class MJgame():
             self.turn = player
             newSet.append(addTile)
         self.setDict[player].append(newSet)
-        playerSets = self.setDict[player]
+        playerSets = [t for eachSet in self.setDict[player] for t in eachSet]
         self.actionInd = []
         return(player, playerSets, self.typeDict[player][-1])
 
@@ -129,6 +129,7 @@ class MJgame():
             sets = self.setDict[player]
             fullHand = [tile for eachSet in sets for tile in eachSet]\
                 + self.handDict[player]
+            fullHand.remove(tile)
             actList.append({
                 'message': 'showWin',
                 'args': (tile, fullHand),
@@ -211,13 +212,13 @@ class MJgame():
             # return action list
             ind = self.actionInd[0]
             sT, sO = self.sT[ind], self.sO[ind]
-            actDict['message'] = 'showCHoices'
+            actDict['message'] = 'showChoices'
             actDict['args'] = (discTile, sT, sO)
             actDict['player'] = (self.turn + ind) % 4
         elif player_in is None:
             # show discarded tile and associated player
-            loc = len(self.discPile[player]) - 1
             player = (self.turn - 1) % 4
+            loc = len(self.discPile[player]) - 1
             actDict['message'] = 'discardTileDisp'
             actDict['args'] = (discTile, player, loc)
             actDict['player'] = player
@@ -275,10 +276,11 @@ class MJgame():
             else:
                 discTile = self.discTile
             fullHand.remove(discTile)
-            if len(maxPoints) == 0:
-                maxPoints = [['chicken win', 0]]
             p = [[key, value] for key, value in maxPoints.items() if value > 0]
             p = list(map(list, zip(*p)))
+            if len(p) == 0:
+                p = [['chicken win', 0]]
+            # Do some minimum point requirement calculation here
             if player != self.start:
                 if self.start == 3:
                     self.wind = (self.wind + 1) % 4
@@ -290,8 +292,9 @@ class MJgame():
                 'player': player,
             }
             return(actDict)
-        elif winInd == 0 and not self.winBool:
-            self.winPlayer.pop()
+        if winInd == 0 and not self.winBool:
+            # remove player form win options
+            self.winPlayer.pop(0)
             return(self.action())
         else:
             return(None)
@@ -323,8 +326,8 @@ class MJgame():
             if i == 0 and s < 3:
                 pairs = [(v-2, v-1), (v-1, v+1), (v+1, v+2)]
                 for pair in pairs:
-                    if all(j in uniq and 0 <= j < 9 for j in pair):
-                        sO[0].append(pair)
+                    if all(0 <= j < 9 and j+s*9 in uniq for j in pair):
+                        sO[0].append([k + s*9 for k in pair])
                         sT[0].append('run')
         self.sT, self.sO = sT, sO
         self.actionInd = [i for i in range(2, -1, -1) if len(sT[i]) != 0]

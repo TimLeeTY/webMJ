@@ -201,7 +201,7 @@ def connectGame(roomID, user, room):
     try:
         actDict = game.action(player_in=userInd)
         emit(actDict['message'], actDict['args'])
-    except(ValueError, TypeError, AttributeError):
+    except(ValueError, TypeError, AttributeError, KeyError):
         return
 
 
@@ -221,11 +221,11 @@ def discardTile(roomID, user, room, tile):
     playerSid = player_q.player_sid
     hand = game.showHand(userInd)
     emit('showHand', hand)
-    socketio.emit('discardTileHand', player, room=roomID)
-    room = roomID if actDict['message'] == 'discardTileDisp' else playerSid
-    socketio.emit(actDict['message'], actDict['args'], room=room)
+    socketio.emit('discardTileHand', userInd, room=roomID)
+    io_room = roomID if actDict['message'] == 'discardTileDisp' else playerSid
+    socketio.emit(actDict['message'], actDict['args'], room=io_room)
     if 'draw' in actDict:
-        draw(actDict['draw'], roomID)
+        draw(actDict['draw'], roomID, room)
 
 
 @socketio.on('winChoice')
@@ -244,11 +244,11 @@ def winChoice(roomID, user, room, winInd):
     player = actDict['player']
     player_q = room.players.filter_by(order=player).first()
     playerSid = player_q.player_sid
-    room = roomID if actDict['message'] in ('discardTileDisp', 'playerWin')\
+    io_room = roomID if actDict['message'] in ('discardTileDisp', 'playerWin')\
         else playerSid
-    socketio.emit(actDict['message'], actDict['args'], room=room)
+    socketio.emit(actDict['message'], actDict['args'], room=io_room)
     if 'draw' in actDict:
-        draw(actDict['draw'], roomID)
+        draw(actDict['draw'], roomID, room)
 
 
 @socketio.on('optChoice')
@@ -267,16 +267,16 @@ def optChoice(roomID, user, room, setInd):
     player = actDict['player']
     player_q = room.players.filter_by(order=player).first()
     playerSid = player_q.player_sid
-    room = playerSid if actDict['message'] in ('showChoices') else roomID
-    socketio.emit(actDict['message'], actDict['args'], room=room)
+    io_room = playerSid if actDict['message'] in ('showChoices') else roomID
+    socketio.emit(actDict['message'], actDict['args'], room=io_room)
     if 'draw' in actDict:
-        draw(actDict['draw'], roomID)
+        draw(actDict['draw'], roomID, room)
     hand = game.showHand(userInd)
     emit('showHand', hand)
-    socketio.emit('oneHand', (player, len(hand)), room=roomID)
+    socketio.emit('oneHand', (player, len(hand)), room=io_room)
 
 
-def draw(drawDict, roomID):
+def draw(drawDict, roomID, room):
     if drawDict is None:
         socketio.emit('gameDraw', room=roomID)
         return

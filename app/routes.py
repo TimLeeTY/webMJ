@@ -269,11 +269,10 @@ def optChoice(roomID, user, room, setInd):
     playerSid = player_q.player_sid
     io_room = playerSid if actDict['message'] in ('showChoices') else roomID
     socketio.emit(actDict['message'], actDict['args'], room=io_room)
-    hand = game.showHand(userInd)
-    emit('showHand', hand)
+    if 'playerHand' in actDict:
+        emit('showHand', actDict['playerHand'])
     if 'draw' in actDict:
         draw(actDict['draw'], roomID, room)
-    socketio.emit('oneHand', (player, len(hand)), room=io_room)
 
 
 def draw(drawDict, roomID, room):

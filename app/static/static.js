@@ -126,7 +126,9 @@ function drawSets(tiles, player, newType){
         textBub = document.getElementById("textBubble"+player)
         textBub.appendChild(text)
         setTimeout(function(){
-            textBub.removeChild(text);
+            if (text.parentNode == textBub) {
+                textBub.removeChild(text);
+            }
         }, 2000);
     }
 }
@@ -448,10 +450,14 @@ socket.on('drawSets', function(setDict){
     }
 });
 
-socket.on('drawPlayerSet', function(player, sets, newType){
+socket.on('drawPlayerSet', function(player, sets, newType, handSize){
     player = (player -  playerOrder + 4) % 4 ;
     drawSets(sets, player, newType);;
     whoseTurn(player);
+    if (player !== 0){
+        oneHand(player, handSize)
+    }
+
 });
 
 socket.on('playerDraw', function(tile){

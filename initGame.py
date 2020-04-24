@@ -94,6 +94,7 @@ class MJgame():
         for each in remTiles:
             self.handDict[player].remove(each)
         # redirect turn to appropriate player
+        playerHand = list(self.handDict[player])
         if newType not in ['addGong', 'darkGong']:
             addTile = self.discPile[(self.turn - 1) % 4].pop()
             self.turn = player
@@ -101,7 +102,7 @@ class MJgame():
         self.setDict[player].append(newSet)
         playerSets = [t for eachSet in self.setDict[player] for t in eachSet]
         self.actionInd = []
-        return(player, playerSets, self.typeDict[player][-1])
+        return(player, playerSets, self.typeDict[player][-1], playerHand)
 
     def draw(self):
         """
@@ -249,11 +250,12 @@ class MJgame():
         else:
             newSet = self.sO[ind][setInd-1]
             newType = self.sT[ind][setInd-1]
-            player, playerSets, newType = self.addSet(player, newSet, newType)
+            player, playerSets, newType, playerHand = self.addSet(player, newSet, newType)
             actDict = {
                 'player': player,
-                'args': (player, playerSets, newType),
+                'args': (player, playerSets, newType, len(playerHand)),
                 'message': 'drawPlayerSet',
+                'playerHand': playerHand,
             }
             if newType == 'gong':
                 actDict['draw'] = self.draw()

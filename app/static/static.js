@@ -106,7 +106,7 @@ function drawDiscards(tiles, player){
     }
 }
 
-function drawSets(tiles, player){
+function drawSets(tiles, player, newType){
     if (tiles.length == 0){
         for (var t=0; t<16; t++){
             var tile;
@@ -120,6 +120,14 @@ function drawSets(tiles, player){
             var tile=document.getElementById('set-'+player+'-'+t);
             drawTile(tile, tiles[t])
         }
+        var text=document.createElement("span");
+        text.className = 'textBubb';
+        text.textContent = newType
+        textBub = document.getElementById("textBubble"+player)
+        textBub.appendChild(text)
+        setTimeout(function(){
+            textBub.removeChild(text);
+        }, 2000);
     }
 }
 
@@ -157,7 +165,6 @@ function discardTileDisp(newTile, player, loc){
 }
 
 function discardTileHand(player){
-    console.log(playerList[player]+' discards a tile')
     var tile;
     tile=document.getElementById('hand-'+player+'-0');
     tile.style.backgroundImage = "none";
@@ -419,7 +426,6 @@ socket.on('discardTileDisp', function(newTile, player, loc){
 });
 
 socket.on('discardTileHand', function(player){
-    console.log('discard Tile Hand')
     player = (player - playerOrder + 4) % 4 ;
     discardTileHand(player);
 });
@@ -442,9 +448,9 @@ socket.on('drawSets', function(setDict){
     }
 });
 
-socket.on('drawPlayerSet', function(player, sets){
+socket.on('drawPlayerSet', function(player, sets, newType){
     player = (player -  playerOrder + 4) % 4 ;
-    drawSets(sets, player);;
+    drawSets(sets, player, newType);;
     whoseTurn(player);
 });
 

@@ -22,9 +22,9 @@ Deployed on [Heroku](https://web-mj.herokuapp.com)!
 - `NumPy`
 
 ## TODO:
-- Other players' tiles not displaying properly after set event
+- Other players' tiles not displaying properly after set event (fixed?)
 <!-- - Implement 'addgong' check to every turn  *(added, needs testing)* -->
-    <!-- - Current 'addgong' dialogue lingers after win event, need to reset -->
+<!-- - Current 'addgong' dialogue lingers after win event, need to reset -->
 - Handle win events:
   <!-- - ~~(calculate points for winner)~~ -->
   <!-- - ~~*Show winning points on client side~~ -->
@@ -34,7 +34,6 @@ Deployed on [Heroku](https://web-mj.herokuapp.com)!
     - Logic for self-draw penalties (e.g. after a player shows 4 sets)
   - Only allow wins that fulfill some minimum score
 - Add indicators for actions taken
-<!-- - Logic to handle running out of tiles *(added, needs testing)* -->
 - Add flowers
+<!-- - Logic to handle running out of tiles *(added, needs testing)* -->
 <!-- - Add screenshots to readme -->
-- Add username to win message in JavaScript

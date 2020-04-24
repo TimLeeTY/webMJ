@@ -67,6 +67,7 @@
         <div class='usernameText' id='usernameText{{ player }}'> </div>
         <div class='triangle right-triangle' id='tri-right-{{ player }}'> </div>
     </div>
+    <div class = 'textBubbles' id = 'textBubble{{ player }}'></div>
     {% for i in range(4) %}
     <div class = "{{ tileClass[i] }}" id="{{ tileLabel[i] }}{{ player }}">
         {% for flower in range(tileLen[i]) %}

@@ -66,6 +66,47 @@ div.username{
     pointer-events:none;
 }
 
+div.textBubbles{
+    display: inline-block;
+    background: none;
+    pointer-events: none;
+    position:absolute;
+    width: 20%;
+    height: 10%;
+    /* vertical-align: middle; */
+    /* align-content: center; */
+    text-align: center;
+    /* align-items: center; */
+}
+
+.textBubb{
+    background-color: white;
+    padding: 1em;
+    /* margin-top: 2em; */
+    vertical-align: middle;
+    width: fit-content;
+    height: fit-content;
+    font-size: 20px;
+    line-height: 4em;
+    font-weight: 500;
+}
+
+#textBubble0{
+    left: 40%;
+    bottom: 20%;
+}
+#textBubble1{
+    right: 20%;
+    top: 45%;
+}
+#textBubble2{
+    left: 40%;
+    top: 20%;
+}
+#textBubble3{
+    top: 45%;
+    left: 20%;
+}
 
 div.tiles{
     position: absolute;

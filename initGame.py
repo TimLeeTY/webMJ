@@ -252,7 +252,7 @@ class MJgame():
             player, playerSets, newType = self.addSet(player, newSet, newType)
             actDict = {
                 'player': player,
-                'args': (player, playerSets),
+                'args': (player, playerSets, newType),
                 'message': 'drawPlayerSet',
             }
             if newType == 'gong':
